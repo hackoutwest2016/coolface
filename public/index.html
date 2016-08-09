@@ -8,69 +8,48 @@
 </head>
 <body>
   <div class="container">
-    <h1>Search for an Artist</h1>
+    <h1>Jukebox!</h1>
+    <h2>Search for an Artist</h2>
 
     <form id="search-form">
       <div class="input-group">
-      <input type="text" id="query" class="form-control" placeholder="Search for artist...">
-      <span class="input-group-btn">
-        <button  type="submit" id="search" class="btn btn-default" value="Search">Search</button>
-      </span>
+        <input type="text" id="query" class="form-control" placeholder="Search for artist...">
+        <span class="input-group-btn">
+          <button  type="submit" id="search" class="btn btn-default" value="Search">Search</button>
+        </span>
+      </div>
+    </form>
+
+    <div >
+      <ul id="results" class="list-group"></ul>
     </div>
 
-    </form>
-    <div >
-      <ul id="results" class="list-group">
-      </ul>
+    <div class="list">
+      <ul id="queue-list" class="list-group"></ul>
     </div>
   </div>
 
   <script>
   var resultsPlaceholder = document.getElementById('results');
 
-  var fetchTracks = function (albumId, callback) {
+  var searchArtist = function (searchString) {
     $.ajax({
-      url: 'https://api.spotify.com/v1/albums/' + albumId,
-      success: function (response) {
-        callback(response);
-      }
-    });
-  };
-
-  var searchArtist = function (query) {
-    $.ajax({
-      url: 'https://api.spotify.com/v1/search',
-      data: {
-        q: query,
-        type: 'artist',
-        limit: 1
-      },
-      success: function (response) {
-        var id = response.artists.items[0].id,
-        name = response.artists.items[0].name;
-
-        resultsPlaceholder.innerHTML = '<h4>' + name + ' (ID: ' +  id + ') top 10 tracks</h4>' ;
-        getTopTracks(id);
-      }
-    });
-  };
-
-  var getTopTracks = function (artistId) {
-    $.ajax({
-      url: 'https://api.spotify.com/v1/artists/' + artistId + '/top-tracks?country=SE',
+      url: '/search?text=' + searchString,
+      dataType: 'json',
       success: function (response) {
 
-        for (var i = 0; i < response.tracks.length; i++) {
-          //console.log(response.tracks[i]);
-          var track = response.tracks[i].name
-          trackId = response.tracks[i].id;
-          resultsPlaceholder.innerHTML += '<li class="list-group-item">' + track + ': ' + trackId +
-                                          ' <button id=' + trackId + ' class="btn btn-default btn-vote">Add to que</button>';
+        for (var i = 0; i < response.length; i++) {
 
+          var artist = response[i].artist[0].name,
+          track = response[i].name,
+          trackId = response[i].id;
+
+          resultsPlaceholder.innerHTML += '<li class="list-group-item">' + artist + ': ' + track + ': ' + trackId +
+          ' <button id=' + trackId + ' class="btn btn-default btn-vote">Add to que</button>';
         }
 
         for (var i = 0; i < voteButtons.length; i++) {
-            voteButtons[i].addEventListener('click', voteTrack, false);
+          voteButtons[i].addEventListener('click', voteTrack, false);
         }
 
       }
@@ -85,8 +64,11 @@
   var voteButtons = document.getElementsByClassName("btn-vote");
 
   var voteTrack = function(id) {
-    console.log("Vote for track id: " + this.id);
     this.classList += ' disabled';
+    console.log("Vote for track id: " + this.id);
+    $.ajax({
+      url: '/vote?track_id=' + this.id,
+    })
   };
 
   </script>
