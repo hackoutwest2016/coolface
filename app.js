@@ -60,7 +60,7 @@ track_list = [];
 // Hash mapping track id to a track index in track_list
 tracks = {};
 
-app.get('/vote', function(req, res) {
+app.get('/upvote', function(req, res) {
 
   // Search string
   track_id = req.query.track_id;
