@@ -21,7 +21,6 @@ public class MyBroadcastReceiver extends BroadcastReceiver {
         long timeSentInMs = intent.getLongExtra("timeSent", 0L);
 
         String action = intent.getAction();
-        System.out.println("hej hej jag är brodscastS");
 
         if (action.equals(BroadcastTypes.METADATA_CHANGED)) {
             String trackId = intent.getStringExtra("id");
@@ -31,12 +30,13 @@ public class MyBroadcastReceiver extends BroadcastReceiver {
             int trackLengthInSec = intent.getIntExtra("length", 0);
             // Do something with extracted information...
             System.out.println(trackId+ " "+ trackName);
-            TextView tv = (TextView) MainActivity.mAc.findViewById(R.id.tv_main_activity);
-            tv.setText(trackName + " - " + artistName);
+            //TextView tv = (TextView) MainActivity.mAc.findViewById(R.id.tv_main_activity);
+            //tv.setText(trackName + " - " + artistName);
         } else if (action.equals(BroadcastTypes.PLAYBACK_STATE_CHANGED)) {
             boolean playing = intent.getBooleanExtra("playing", false);
             int positionInMs = intent.getIntExtra("playbackPosition", 0);
             // Do something with extracted information
+            System.out.println("yolo 2 the yo to the lo vi fick ett playback state changed");
         } else if (action.equals(BroadcastTypes.QUEUE_CHANGED)) {
             // Sent only as a notification, your app may want to respond accordingly.
             System.out.println("que yolo change omg wtf");

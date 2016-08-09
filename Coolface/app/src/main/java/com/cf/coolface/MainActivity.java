@@ -20,6 +20,15 @@ import com.spotify.sdk.android.player.Player;
 import com.spotify.sdk.android.player.PlayerNotificationCallback;
 import com.spotify.sdk.android.player.PlayerState;
 
+import kaaes.spotify.webapi.android.SpotifyApi;
+import kaaes.spotify.webapi.android.SpotifyService;
+import kaaes.spotify.webapi.android.models.Album;
+import kaaes.spotify.webapi.android.models.ArtistSimple;
+import kaaes.spotify.webapi.android.models.Track;
+import retrofit.Callback;
+import retrofit.RetrofitError;
+import retrofit.client.Response;
+
 public class MainActivity extends Activity implements
         PlayerNotificationCallback, ConnectionStateCallback {
 
@@ -33,6 +42,9 @@ public class MainActivity extends Activity implements
     // Request code that will be used to verify if the result comes from correct activity
     // Can be any integer
     private static final int REQUEST_CODE = 1337;
+    private static String accessToken;
+    private static SpotifyApi api;
+    private static String currentTrackID = "5HSGgWzrQMtUAIZ7z5gF2a";
 
     private Player mPlayer;
     @Override
@@ -51,16 +63,31 @@ public class MainActivity extends Activity implements
         final Button button = (Button) findViewById(R.id.btn_main_activity);
         button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                mPlayer.getPlayerState(new PlayerStateCallback() {
+                final TextView tv_main_activity =  (TextView) findViewById(R.id.tv_main_activity);
+
+                SpotifyService spotify = api.getService();
+
+                spotify.getTrack(currentTrackID, new Callback<Track>() {
                     @Override
-                    public void onPlayerState(PlayerState playerState) {
-                        int i = playerState.positionInMs;
-                        int slut = playerState.durationInMs;
-                        int kvar = slut -i;
-                        TextView tv_main_activity =  (TextView) findViewById(R.id.tv_main_activity);
-                        tv_main_activity.setText(Integer.toString(kvar));
+                    public void success(Track track, Response response) {
+                        String artists = "";
+                        for (ArtistSimple as: track.artists) {
+                            if(artists.isEmpty()){
+                                artists = as.name;
+                            }else{
+                                artists += ", " + as.name;
+                            }
+
+                        };
+                        tv_main_activity.setText(track.name + " - " + artists);
+                    }
+
+                    @Override
+                    public void failure(RetrofitError error) {
+                        tv_main_activity.setText("DENNA LÅTEN FINNS INTE TÖNT");
                     }
                 });
+
             }
         });
 
@@ -75,6 +102,10 @@ public class MainActivity extends Activity implements
         if (requestCode == REQUEST_CODE) {
             AuthenticationResponse response = AuthenticationClient.getResponse(resultCode, intent);
             if (response.getType() == AuthenticationResponse.Type.TOKEN) {
+                accessToken = response.getAccessToken();
+                api = new SpotifyApi();
+                api.setAccessToken(accessToken);
+
                 Config playerConfig = new Config(this, response.getAccessToken(), CLIENT_ID);
                 Spotify.getPlayer(playerConfig, this, new Player.InitializationObserver() {
                     @Override
