@@ -4,21 +4,32 @@ import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.spotify.sdk.android.authentication.AuthenticationClient;
 import com.spotify.sdk.android.authentication.AuthenticationRequest;
 import com.spotify.sdk.android.authentication.AuthenticationResponse;
 import com.spotify.sdk.android.player.Config;
+import com.spotify.sdk.android.player.PlayConfig;
 import com.spotify.sdk.android.player.PlayerStateCallback;
 import com.spotify.sdk.android.player.Spotify;
 import com.spotify.sdk.android.player.ConnectionStateCallback;
 import com.spotify.sdk.android.player.Player;
 import com.spotify.sdk.android.player.PlayerNotificationCallback;
 import com.spotify.sdk.android.player.PlayerState;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Timer;
 
 import kaaes.spotify.webapi.android.SpotifyApi;
 import kaaes.spotify.webapi.android.SpotifyService;
@@ -45,6 +56,7 @@ public class MainActivity extends Activity implements
     private static String accessToken;
     private static SpotifyApi api;
     private static String currentTrackID = "5HSGgWzrQMtUAIZ7z5gF2a";
+    private static String nextTrackId = "2QZtBUsFrDOV1Y3tuohEXs";
 
     private Player mPlayer;
     @Override
@@ -63,35 +75,75 @@ public class MainActivity extends Activity implements
         final Button button = (Button) findViewById(R.id.btn_main_activity);
         button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                final TextView tv_main_activity =  (TextView) findViewById(R.id.tv_main_activity);
-
-                SpotifyService spotify = api.getService();
-
-                spotify.getTrack(currentTrackID, new Callback<Track>() {
-                    @Override
-                    public void success(Track track, Response response) {
-                        String artists = "";
-                        for (ArtistSimple as: track.artists) {
-                            if(artists.isEmpty()){
-                                artists = as.name;
-                            }else{
-                                artists += ", " + as.name;
-                            }
-
-                        };
-                        tv_main_activity.setText(track.name + " - " + artists);
-                    }
-
-                    @Override
-                    public void failure(RetrofitError error) {
-                        tv_main_activity.setText("DENNA LÅTEN FINNS INTE TÖNT");
-                    }
-                });
-
+                //displaySongInfo();
             }
         });
 
         mAc = this;
+    }
+
+    private void displaySongInfo(){
+        final TextView tv_main_activity =  (TextView) findViewById(R.id.tv_main_activity);
+        SpotifyService spotify = api.getService();
+
+        spotify.getTrack(currentTrackID, new Callback<Track>() {
+            @Override
+            public void success(Track track, Response response) {
+                String artists = "";
+                for (ArtistSimple as: track.artists) {
+                    if(artists.isEmpty()){
+                        artists = as.name;
+                    }else{
+                        artists += ", " + as.name;
+                    }
+
+                };
+                tv_main_activity.setText(track.name + " - " + artists);
+                final TextView tv_time_left = (TextView) findViewById(R.id.tv_time_left);
+                new CountDownTimer(track.duration_ms - 10000, 5000) {
+
+                    public void onTick(long millisUntilFinished) {
+                        tv_time_left.setText("suknder kvar till köa av ny låt: " + millisUntilFinished / 1000);
+                    }
+
+                    public void onFinish() {
+                        tv_time_left.setText("Dagd sstt byta låt!");
+                        mPlayer.queue("spotify:track:" + nextTrackId);
+                        currentTrackID = nextTrackId;
+                    }
+                }.start();
+            }
+
+            @Override
+            public void failure(RetrofitError error) {
+                tv_main_activity.setText("DENNA LÅTEN FINNS INTE TÖNT");
+            }
+        });
+    }
+
+    private void getNextTrack(){
+
+        // Instantiate the RequestQueue.
+        RequestQueue queue = Volley.newRequestQueue(this);
+        String url ="localhost:8080";
+
+        final TextView tv_time_left = (TextView) findViewById(R.id.tv_time_left);
+        // Request a string response from the provided URL.
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
+                new com.android.volley.Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        // Display the first 500 characters of the response string.
+                        tv_time_left.setText("Response is: "+ response.substring(0,500));
+                    }
+                }, new com.android.volley.Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                tv_time_left.setText("That didn't work!");
+            }
+        });
+    // Add the request to the RequestQueue.
+        queue.add(stringRequest);
     }
 
     @Override
@@ -117,7 +169,7 @@ public class MainActivity extends Activity implements
                         mPlayer.setRepeat(true);
                         mPlayer.setShuffle(true);
                         System.out.println("Nur är saker på g!");
-
+                        displaySongInfo();
                     }
 
                     @Override
@@ -131,7 +183,6 @@ public class MainActivity extends Activity implements
 
     @Override
     public void onLoggedIn() {
-        mPlayer.queue("spotify:track:005aleV5byjflm7005uSfY");
         Log.d("MainActivity", "User logged in");
     }
 
@@ -157,6 +208,9 @@ public class MainActivity extends Activity implements
 
     @Override
     public void onPlaybackEvent(EventType eventType, PlayerState playerState) {
+        if(eventType == EventType.TRACK_CHANGED){
+            displaySongInfo();
+        }
         Log.d("MainActivity", "Playback event received: " + eventType.name());
     }
 

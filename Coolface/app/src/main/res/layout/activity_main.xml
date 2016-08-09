@@ -14,10 +14,16 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Paradise Jokkmokk!" />
+    <TextView
+        android:id="@+id/tv_time_left"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="HÄR SKA DET VISAS TID ELLER NÅGOT TÖNTIGT"
+        android:layout_below="@+id/tv_main_activity"/>
     <Button
         android:id="@+id/btn_main_activity"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/tv_main_activity"
+        android:layout_below="@+id/tv_time_left"
         android:text="Vad ska vi göra med Henry?"/>
 </RelativeLayout>
