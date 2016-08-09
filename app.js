@@ -222,5 +222,5 @@ app.get('/scoreBoard', function(req,res) {
   res.send(sorted_list);
 });
 
-console.log('Listening on 8888');
-app.listen(8888);
+console.log('Listening on 8888 ish');
+app.listen(process.env.PORT || 8888);
