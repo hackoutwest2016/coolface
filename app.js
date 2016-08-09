@@ -52,29 +52,44 @@ app.get('/search', function(req, res) {
         items.push({album_name: album_name, artist: artists, id: id, name: name});
       }
 
-      res.send(JSON.stringify(items));
+      res.send(items);
     }
   });
 });
 
+// Sorted list of all tracks
 track_list = [];
-track1 = {track_name: 'one', vote_count: 0};
-track2 = {track_name: 'two', vote_count: 0};
 
-// HashTable mapping track id to a track
+// Hash mapping track id to a track index in track_list
 tracks = {};
-//tracks['1'] = track1;
-//tracks['2'] = track2;
 
 app.get('/vote', function(req, res) {
 
   // Search string
   track_id = req.query.track_id;
 
-  var track = tracks[track_id];
-  if (track) {
+  var track_index = tracks[track_id];
+  if (track_index != null) {
+    var track = track_list[track_index];
     track.vote_count = track.vote_count + 1;
-    res.send(tracks);
+
+    // Check order of track list
+    if (track_index > 0) {
+      if (track_list[track_index].vote_count > 
+          track_list[track_index-1].vote_count) {
+
+        // Change order in track list
+        var temp = track_list[track_index-1];
+        track_list[track_index-1] = track_list[track_index];
+        track_list[track_index] = temp;
+
+        // Update HashMap
+        tracks[track_id] = track_index-1;
+        tracks[temp.id] = track_index;
+      }
+    }
+
+    res.send(JSON.stringify(track_list));
   } else {
 
     // Get track by track id from Spotify API
@@ -91,15 +106,37 @@ app.get('/vote', function(req, res) {
         for (var i = 0; i < body.artists.length; i++) {
           artists.push({name: body.artists[i].name});
         }
-        tracks[track_id] = {album_name: album_name, artists: artists, track_name: body.name, vote_count: 1};
-        res.send(JSON.stringify(tracks));
+        var track = {album_name: album_name, artists: artists, id: track_id, track_name: body.name, vote_count: 1}
+        track_list.push(track);
+        tracks[track_id] = track_list.length - 1;
+        res.send(JSON.stringify(track_list));
       }
     });
-
   }
-  
 });
 
+app.get('/list', function(req, res) {
+  res.send(JSON.stringify(track_list));
+});
+
+/* Returns the next song (the highest scoring) in the list*/
+app.get('/nextSong', function(req,res) {
+  console.log(track_list);
+  console.log(tracks);
+
+  getElemRemove = track_list[0];
+  delete tracks[getElemRemove.id];
+  track_list.splice(0,1);
+
+
+  for (var key in tracks) {
+    tracks[key] = tracks[key] - 1;
+  }
+  console.log(track_list);
+  console.log(tracks);
+  
+  res.send(getElemRemove.id);
+});
 
 console.log('Listening on 8888');
 app.listen(8888);
