@@ -76,6 +76,7 @@ public class MainActivity extends Activity implements
         button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 //displaySongInfo();
+                //setNextTrack();
             }
         });
 
@@ -83,6 +84,7 @@ public class MainActivity extends Activity implements
     }
 
     private void displaySongInfo(){
+        System.out.println("display song info called");
         final TextView tv_main_activity =  (TextView) findViewById(R.id.tv_main_activity);
         SpotifyService spotify = api.getService();
 
@@ -100,16 +102,17 @@ public class MainActivity extends Activity implements
                 };
                 tv_main_activity.setText(track.name + " - " + artists);
                 final TextView tv_time_left = (TextView) findViewById(R.id.tv_time_left);
-                new CountDownTimer(track.duration_ms - 10000, 5000) {
+                new CountDownTimer(track.duration_ms - 10000, 2000) {
 
                     public void onTick(long millisUntilFinished) {
                         tv_time_left.setText("suknder kvar till köa av ny låt: " + millisUntilFinished / 1000);
                     }
 
                     public void onFinish() {
+                        System.out.println("OM JAG ROPAS PÅ FLERA GÅNGER ÄR DET FAN SJUKT!");
                         tv_time_left.setText("Dagd sstt byta låt!");
-                        mPlayer.queue("spotify:track:" + nextTrackId);
-                        currentTrackID = nextTrackId;
+                        setNextTrack();
+
                     }
                 }.start();
             }
@@ -121,11 +124,12 @@ public class MainActivity extends Activity implements
         });
     }
 
-    private void getNextTrack(){
+    private void setNextTrack(){
+        System.out.println("setting next track");
 
         // Instantiate the RequestQueue.
         RequestQueue queue = Volley.newRequestQueue(this);
-        String url ="localhost:8080";
+        String url ="http://coolface.herokuapp.com/nextSong";
 
         final TextView tv_time_left = (TextView) findViewById(R.id.tv_time_left);
         // Request a string response from the provided URL.
@@ -133,8 +137,14 @@ public class MainActivity extends Activity implements
                 new com.android.volley.Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        // Display the first 500 characters of the response string.
-                        tv_time_left.setText("Response is: "+ response.substring(0,500));
+                        //System.out.println("setting next track yo " + response);
+                        if(response.equalsIgnoreCase("error")){
+                            nextTrackId = "6KAu1eef7xY0Gkg1WQkpNT";
+                        }else {
+                            nextTrackId = response;
+                        }
+                        mPlayer.queue("spotify:track:" + nextTrackId);
+                        currentTrackID = nextTrackId;
                     }
                 }, new com.android.volley.Response.ErrorListener() {
             @Override
@@ -166,10 +176,9 @@ public class MainActivity extends Activity implements
                         mPlayer.addConnectionStateCallback(MainActivity.this);
                         mPlayer.addPlayerNotificationCallback(MainActivity.this);
                         mPlayer.play("spotify:track:6KAu1eef7xY0Gkg1WQkpNT");
-                        mPlayer.setRepeat(true);
-                        mPlayer.setShuffle(true);
+                        //mPlayer.setRepeat(true);
+                        //mPlayer.setShuffle(true);
                         System.out.println("Nur är saker på g!");
-                        displaySongInfo();
                     }
 
                     @Override
