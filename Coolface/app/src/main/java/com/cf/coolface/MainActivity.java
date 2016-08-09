@@ -72,13 +72,13 @@ public class MainActivity extends Activity implements
 
         AuthenticationClient.openLoginActivity(this, REQUEST_CODE, request);
 
-        final Button button = (Button) findViewById(R.id.btn_main_activity);
+        /*final Button button = (Button) findViewById(R.id.btn_main_activity);
         button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 //displaySongInfo();
                 //setNextTrack();
             }
-        });
+        });*/
 
         mAc = this;
     }
@@ -139,12 +139,13 @@ public class MainActivity extends Activity implements
                     public void onResponse(String response) {
                         //System.out.println("setting next track yo " + response);
                         if(response.equalsIgnoreCase("error")){
-                            nextTrackId = "6KAu1eef7xY0Gkg1WQkpNT";
+                            //nextTrackId = "6KAu1eef7xY0Gkg1WQkpNT";
+                            //DO NATHING
                         }else {
                             nextTrackId = response;
+                            mPlayer.queue("spotify:track:" + nextTrackId);
+                            currentTrackID = nextTrackId;
                         }
-                        mPlayer.queue("spotify:track:" + nextTrackId);
-                        currentTrackID = nextTrackId;
                     }
                 }, new com.android.volley.Response.ErrorListener() {
             @Override
@@ -176,8 +177,8 @@ public class MainActivity extends Activity implements
                         mPlayer.addConnectionStateCallback(MainActivity.this);
                         mPlayer.addPlayerNotificationCallback(MainActivity.this);
                         mPlayer.play("spotify:track:6KAu1eef7xY0Gkg1WQkpNT");
-                        //mPlayer.setRepeat(true);
-                        //mPlayer.setShuffle(true);
+                        mPlayer.setRepeat(true);
+                        mPlayer.setShuffle(true);
                         System.out.println("Nur är saker på g!");
                     }
 
