@@ -92,7 +92,7 @@ app.get('/vote', function(req, res) {
           artists.push({name: body.artists[i].name});
         }
         tracks[track_id] = {album_name: album_name, artists: artists, track_name: body.name, vote_count: 1};
-        res.send(tracks);
+        res.send(JSON.stringify(tracks));
       }
     });
 
