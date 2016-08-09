@@ -60,9 +60,11 @@ track_list = [];
 // Hash mapping track id to a track index in track_list
 tracks = {};
 
+// Upvote a track in the list, adds a track to track list
+// if it's not in the list
 app.get('/upvote', function(req, res) {
 
-  // Search string
+  // Track ID
   track_id = req.query.track_id;
 
   var track_index = tracks[track_id];
@@ -112,6 +114,44 @@ app.get('/upvote', function(req, res) {
   }
 });
 
+// Downvotes a track in the list
+app.get('/downvote', function(req, res) {
+
+  // Track ID
+  track_id = req.query.track_id;
+
+  var track_index = tracks[track_id];
+  if (track_index != null) {
+    
+    console.log(track_index);
+    console.log(track_list);
+
+    var track = track_list[track_index];
+    console.log(track);
+
+    track.vote_count = track.vote_count - 1;
+
+    // Check order of track list
+    if (track_index < track_list.length - 1) {
+      if (track_list[track_index].vote_count < 
+          track_list[track_index+1].vote_count) {
+
+        // Change order in track list
+        var temp = track_list[track_index+1];
+        track_list[track_index+1] = track_list[track_index];
+        track_list[track_index] = temp;
+
+        // Update HashMap
+        tracks[track_id] = track_index+1;
+        tracks[temp.id] = track_index;
+      }
+    }
+
+    res.send(JSON.stringify(track_list));
+  } 
+});
+
+// Returns the track list
 app.get('/list', function(req, res) {
   res.send(JSON.stringify(track_list));
 });
