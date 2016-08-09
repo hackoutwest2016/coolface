@@ -252,5 +252,7 @@ app.get('/scoreBoard', function(req,res) {
   res.send(artist_images);
 });
 
-console.log('Listening on 8888');
-app.listen(8888);
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`Our app is running on port ${ PORT }`);
+});
