@@ -115,9 +115,8 @@ app.get('/vote', function(req, res) {
   }
 });
 
-
 app.get('/list', function(req, res) {
-  res.send(track_list);
+  res.send(JSON.stringify(track_list));
 });
 
 console.log('Listening on 8888');
