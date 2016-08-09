@@ -151,25 +151,76 @@ app.get('/downvote', function(req, res) {
   } 
 });
 
-// Returns the track list
+/* Returns the track list */
 app.get('/list', function(req, res) {
   res.send(JSON.stringify(track_list));
 });
 
+// Hash mapping track id to a play count
+played_count = {};
+
+played_count['4'] = 3;
+played_count['9'] = 9;
+played_count['2'] = 1;
+played_count['5'] = 8;
+played_count['1'] = 4;
+
+
+
 /* Returns the next song (the highest scoring) in the list*/
 app.get('/nextSong', function(req,res) {
 
-  getElemRemove = track_list[0];
-  delete tracks[getElemRemove.id];
-  track_list.splice(0,1);
+  if (track_list.length != 0) { // check that the list isn't empty
+    var getElemRemove = track_list[0];
+    var track_id = getElemRemove.id;
+    delete tracks[track_id];
 
-  for (var key in tracks) {
-    tracks[key] = tracks[key] - 1;
+    track_list.splice(0,1); // removes the top element (track)
+
+    for (var key in tracks) {
+      tracks[key] = tracks[key] - 1;
+    }
+
+    // When the song has stopped playing we add 
+    // the track or increment the count in the hash map
+    if (played_count[track_id] != null) {
+      played_count[track_id] = played_count[track_id] + 1;
+    } else {
+      played_count[track_id] = 1;
+    }
+
+    res.send(track_id);
+  } else {
+    res.send('error');
   }
-  
-  res.send(getElemRemove.id);
 });
 
-console.log('Listening on 8888 typ');
-app.listen(process.env.PORT || 8888);
+/* A graphic scoreboard of the most played tracks*/ 
+app.get('/scoreBoard', function(req,res) {
 
+  // function to transfer the hash values into an array and sort them
+  sorted_list = []; 
+  for (var key in played_count) {
+    // Checks if sorted_list is empty
+    if (sorted_list.length != 0) {
+      var i;
+      for (i = 0; i < sorted_list.length; i++) {
+        if (played_count[key] > played_count[sorted_list[i]]) {
+          sorted_list.splice(i,0,key);
+          break;
+        }
+      }
+      if (i == sorted_list.length) {
+        sorted_list.push(key);
+      }
+    } else {
+      // Insert key in sorted list when it's empty
+      sorted_list.push(key);
+    }
+  }
+
+  res.send(sorted_list);
+});
+
+console.log('Listening on 8888');
+app.listen(8888);
