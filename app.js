@@ -60,16 +60,19 @@ track_list = [];
 // Hash mapping track id to a track index in track_list
 tracks = {};
 
-unique_id = 0;
+unique_id = 1;
 users = {};
 votes = {};
 
 // Set cookie
 cookie_name = 'user_id';
 app.get('/cookie', function(req, res){ 
+  var user_id = req.cookies ? req.cookies['user_id'] : null;
+  if (!user_id) {
     res.cookie(cookie_name, unique_id).send('Cookie is set');
     votes[unique_id] = 0;
     unique_id++;
+  }
 });
 
 // Upvote a track in the list, adds a track to track list
@@ -77,15 +80,15 @@ app.get('/cookie', function(req, res){
 app.get('/upvote', function(req, res) {
 
   // Check how many votes
-  /*var user_id = req.cookies ? req.cookies['user_id'] : null;
-  if (user_id != null) {
+  var user_id = req.cookies ? req.cookies['user_id'] : null;
+  if (user_id) {
     vote_count = votes[user_id];
     if (vote_count > 3) {
       res.send('Too many votes');
     } else {
       votes[user_id] = votes[user_id] + 1; 
     }
-  } */
+  }
 
   // Track ID
   track_id = req.query.track_id;
@@ -145,9 +148,6 @@ app.get('/downvote', function(req, res) {
 
   var track_index = tracks[track_id];
   if (track_index != null) {
-    
-    console.log(track_index);
-    console.log(track_list);
 
     var track = track_list[track_index];
     console.log(track);
@@ -186,13 +186,13 @@ played_count['1j8z4TTjJ1YOdoFEDwJTQa'] = 3;
 played_count['5nqof30JRAkvfxcj9cgS0n'] = 9;
 
 
-
+current_song = undefined;
 /* Returns the next song (the highest scoring) in the list*/
 app.get('/nextSong', function(req,res) {
 
   if (track_list.length != 0) { // check that the list isn't empty
-    var getElemRemove = track_list[0];
-    var track_id = getElemRemove.id;
+    var current_song = track_list[0];
+    var track_id = current_song.id;
     delete tracks[track_id];
 
     track_list.splice(0,1); // removes the top element (track)
@@ -208,6 +208,7 @@ app.get('/nextSong', function(req,res) {
     } else {
       played_count[track_id] = 1;
     }
+    sort_list();
 
     res.send(track_id);
   } else {
@@ -215,65 +216,78 @@ app.get('/nextSong', function(req,res) {
   }
 });
 
-/* A graphic scoreboard of the most played tracks*/ 
-app.get('/scoreBoard', function(req,res) {
+app.get('/current_song', function(req,res) {
+  res.send(current_song);
+});
+
+/* A graphic scoreboard of the most played tracks*/
+
+sorted_track_count_list = []; 
+function sort_list() {
 
   // function to transfer the hash values into an array and sort them
-  sorted_list = []; 
+  sorted_track_count_list = []; 
   for (var key in played_count) {
     // Checks if sorted_list is empty
-    if (sorted_list.length != 0) {
+    if (sorted_track_count_list.length != 0) {
       var i;
-      for (i = 0; i < sorted_list.length; i++) {
-        if (played_count[key] > played_count[sorted_list[i]]) {
-          sorted_list.splice(i,0,key);
+      for (i = 0; i < sorted_track_count_list.length; i++) {
+        if (played_count[key] > played_count[sorted_track_count_list[i]]) {
+          sorted_track_count_list.splice(i,0,key);
           break;
         }
       }
-      if (i == sorted_list.length) {
-        sorted_list.push(key);
+      if (i == sorted_track_count_list.length) {
+        sorted_track_count_list.push(key);
       }
     } else {
       // Insert key in sorted list when it's empty
-      sorted_list.push(key);
+      sorted_track_count_list.push(key);
     }
   }
+}
 
-  // GRAPHIIIIIIIIIIIIIC
-  artist_images = [];
-  
-  for (i = 0; i < sorted_list.length; i++) {
-    var track_id = sorted_list[i];
-    // Get track by track id from Spotify API
-    var options = {
-          url: 'https://api.spotify.com/v1/tracks/' + track_id,
-          json: true
-    };
+app.get('/artists', function(req,res) {
 
-    request.get(options, function(error, response, body) {
-      if (!error && response.statusCode === 200) {
+  // Track ID
+  var track_id = req.query.track_id;
 
-        for (var i = 0; i < body.artists.length; i++) {
+  // Get track by track id from Spotify API
+  var options = {
+        url: 'https://api.spotify.com/v1/tracks/' + track_id,
+        json: true
+  };
 
-          var artistId = body.artists[i].id;
+  request.get(options, function(error, response, body) {
+    
+    if (!error && response.statusCode === 200) {
 
-          var options = {
-                url: 'https://api.spotify.com/v1/artists/' + artistId,
-                json: true
-          };
-          
-          request.get(options, function(error, response, body) {
-            if (!error && response.statusCode === 200) {
-              artist_images.push(body.images.pop()); 
-            }
-          });
-        }
+      artists = [];
+      for (var i = 0; i < body.artists.length; i++) {
+        artists.push(body.artists[i].id);
       }
-    });
-  }
-
-  res.send(artist_images);
+      res.send(artists);
+    }
+  });
 });
+
+app.get('/artistimage', function(req, res) {
+
+  // Artist ID
+  artist_id = req.query.artist_id;
+
+  var options = {
+        url: 'https://api.spotify.com/v1/artists/' + artist_id,
+        json: true
+  };
+
+  request.get(options, function(error, response, body) {
+    if (!error && response.statusCode === 200) {
+      res.send(body.images.pop().url);
+    }
+  });
+});
+
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
