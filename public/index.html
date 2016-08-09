@@ -20,17 +20,19 @@
       </div>
     </form>
 
-    <div >
+    <div>
       <ul id="results" class="list-group"></ul>
     </div>
 
     <div class="list">
-      <ul id="queue-list" class="list-group"></ul>
+      <h2>Queue</h2>
+      <ul id="queue" class="list-group"></ul>
     </div>
   </div>
 
   <script>
   var resultsPlaceholder = document.getElementById('results');
+  var queue = document.getElementById('queue');
 
   var searchArtist = function (searchString) {
     $.ajax({
@@ -45,7 +47,7 @@
           trackId = response[i].id;
 
           resultsPlaceholder.innerHTML += '<li class="list-group-item">' + artist + ': ' + track + ': ' + trackId +
-          ' <button id=' + trackId + ' class="btn btn-default btn-vote">Add to que</button>';
+          ' <button id=' + trackId + ' class="btn btn-default btn-vote">Add to que</button></li>';
         }
 
         for (var i = 0; i < voteButtons.length; i++) {
@@ -67,8 +69,54 @@
     this.classList += ' disabled';
     console.log("Vote for track id: " + this.id);
     $.ajax({
-      url: '/vote?track_id=' + this.id,
+      url: '/upvote?track_id=' + this.id,
+      success: function (resp) {
+        console.log("hello");
+        getList();
+      }
     })
+  };
+
+  var getList = function() {
+    $.ajax({
+      url: '/list',
+      method: 'GET',
+      dataType: 'json',
+      success: function (data) {
+        console.log(data);
+        updateQueue(data);
+      }
+    });
+  }
+
+  var updateQueue = function(data){
+
+    queue.innerHTML = "";
+
+    for (var i = 0; i < data.length; i++) {
+
+      var artist = data[i].artists[0].name,
+          track = data[i].track_name,
+          trackId = data[i].id,
+          votes = data[i].vote_count;
+
+      console.log(trackId);
+
+      queue.innerHTML += '<li class="list-group-item">' + artist + ': ' + track + ': ' + trackId +
+      '<span class="votes">' + votes + '</span>' +
+      ' <button id=' + trackId + ' class="btn btn-default btn-vote">Vote</button>';
+    }
+
+    for (var i = 0; i < voteButtons.length; i++) {
+      voteButtons[i].addEventListener('click', voteTrack, false);
+    }
+
+    // $('#queue-list').innerHTML += '<li class="list-group-item">' + artist + ': ' + track + ': ' + trackId +
+    // ' <button id=' + trackId + ' class="btn btn-default btn-vote">Add to que</button>';
+  };
+
+  window.onload = function () {
+    getList();
   };
 
   </script>

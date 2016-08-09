@@ -195,9 +195,6 @@ app.get('/nextSong', function(req,res) {
   }
 });
 
-console.log('Listening on 8888');
-app.listen(8888);
-
 /* A graphic scoreboard of the most played tracks*/ 
 app.get('/scoreBoard', function(req,res) {
 
@@ -224,3 +221,6 @@ app.get('/scoreBoard', function(req,res) {
 
   res.send(sorted_list);
 });
+
+console.log('Listening on 8888');
+app.listen(8888);
