@@ -55,7 +55,7 @@ public class MainActivity extends Activity implements
     private static final int REQUEST_CODE = 1337;
     private static String accessToken;
     private static SpotifyApi api;
-    private static String currentTrackID = "5HSGgWzrQMtUAIZ7z5gF2a";
+    private static String currentTrackID = "6KAu1eef7xY0Gkg1WQkpNT";
     private static String nextTrackId = "2QZtBUsFrDOV1Y3tuohEXs";
 
     private Player mPlayer;
@@ -165,7 +165,7 @@ public class MainActivity extends Activity implements
                         mPlayer = player;
                         mPlayer.addConnectionStateCallback(MainActivity.this);
                         mPlayer.addPlayerNotificationCallback(MainActivity.this);
-                        mPlayer.play("spotify:track:5HSGgWzrQMtUAIZ7z5gF2a");
+                        mPlayer.play("spotify:track:6KAu1eef7xY0Gkg1WQkpNT");
                         mPlayer.setRepeat(true);
                         mPlayer.setShuffle(true);
                         System.out.println("Nur är saker på g!");
