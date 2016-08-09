@@ -35,9 +35,6 @@ app.get('/search', function(req, res) {
 
   request.get(options, function(error, response, body) {
     if (!error && response.statusCode === 200) {
-      //console.log(body.tracks.items);
-      //res.send(body.tracks.items);
-
       items = []
       for (var i = 0; i < body.tracks.items.length; i++) {
 
@@ -121,19 +118,14 @@ app.get('/list', function(req, res) {
 
 /* Returns the next song (the highest scoring) in the list*/
 app.get('/nextSong', function(req,res) {
-  console.log(track_list);
-  console.log(tracks);
 
   getElemRemove = track_list[0];
   delete tracks[getElemRemove.id];
   track_list.splice(0,1);
 
-
   for (var key in tracks) {
     tracks[key] = tracks[key] - 1;
   }
-  console.log(track_list);
-  console.log(tracks);
   
   res.send(getElemRemove.id);
 });
