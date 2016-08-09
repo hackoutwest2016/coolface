@@ -1,0 +1,15 @@
+body {
+  padding: 20px;
+}
+
+#search-form, .form-control {
+  margin-bottom: 60px;
+}
+
+.list-group-item {
+  height: 56px;
+}
+
+.btn-vote {
+  float: right;
+}
