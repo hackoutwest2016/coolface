@@ -60,7 +60,8 @@ public class MainActivity extends Activity implements
                         mPlayer.addConnectionStateCallback(MainActivity.this);
                         mPlayer.addPlayerNotificationCallback(MainActivity.this);
                         mPlayer.play("spotify:track:5HSGgWzrQMtUAIZ7z5gF2a");
-                        mPlayer.
+                        mPlayer.setRepeat(true);
+                        mPlayer.setShuffle(true);
                     }
 
                     @Override
