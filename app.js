@@ -60,9 +60,32 @@ track_list = [];
 // Hash mapping track id to a track index in track_list
 tracks = {};
 
+unique_id = 0;
+users = {};
+votes = {};
+
+// Set cookie
+cookie_name = 'user_id';
+app.get('/cookie', function(req, res){ 
+    res.cookie(cookie_name, unique_id).send('Cookie is set');
+    votes[unique_id] = 0;
+    unique_id++;
+});
+
 // Upvote a track in the list, adds a track to track list
 // if it's not in the list
 app.get('/upvote', function(req, res) {
+
+  // Check how many votes
+  /*var user_id = req.cookies ? req.cookies['user_id'] : null;
+  if (user_id != null) {
+    vote_count = votes[user_id];
+    if (vote_count > 3) {
+      res.send('Too many votes');
+    } else {
+      votes[user_id] = votes[user_id] + 1; 
+    }
+  } */
 
   // Track ID
   track_id = req.query.track_id;
