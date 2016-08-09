@@ -69,7 +69,7 @@
     this.classList += ' disabled';
     console.log("Vote for track id: " + this.id);
     $.ajax({
-      url: '/vote?track_id=' + this.id,
+      url: '/upvote?track_id=' + this.id,
       success: function (resp) {
         console.log("hello");
         getList();
