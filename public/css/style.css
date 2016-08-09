@@ -1,22 +1,29 @@
 body {
   padding: 20px;
+  background: linen;
 }
 
 #search-form, .form-control {
   margin-bottom: 60px;
+  background-color: lightPink;
+}
+#search{
+  background:#ff99a8;
 }
 
 .list-group-item {
   height: 56px;
+  background-color: lightPink;
 }
 
 .btn-vote {
   float: right;
+  background: #ff99a8;
 }
 
 .votes {
   float: right;
-  background: #1abc9c;
+  background: #ff667d;
   border: 0px solid;
   border-radius: 50%;
   width: 20px;
@@ -25,3 +32,12 @@ body {
   margin-left: 10px;
   margin-top: 7px;
 }
+
+h1{
+  color:pink;
+}
+
+h2{
+  color:HotPink;
+}
+

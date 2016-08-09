@@ -2,8 +2,9 @@
 <html>
 <head>
   <title>Jukebox!</title>
-  <link rel="stylesheet" href="css/style.css">
+  
   <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+  <link rel="stylesheet" href="css/style.css">
   <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
 </head>
 <body>
@@ -47,7 +48,7 @@
           trackId = response[i].id;
 
           resultsPlaceholder.innerHTML += '<li class="list-group-item">' + artist + ': ' + track + ': ' + trackId +
-          ' <button id=' + trackId + ' class="btn btn-default btn-vote">Add to que</button></li>';
+          ' <button id=' + trackId + ' class="btn btn-default btn-vote">Add to queue</button></li>';
         }
 
         for (var i = 0; i < voteButtons.length; i++) {
