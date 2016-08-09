@@ -2,7 +2,8 @@
 <html>
 <head>
   <title>Jukebox!</title>
-  
+
+  <meta name="viewport" content="initial-scale=1, maximum-scale=1">
   <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
   <link rel="stylesheet" href="css/style.css">
   <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
@@ -10,7 +11,9 @@
 <body>
   <div class="container">
     <h1>Jukebox!</h1>
-    <h2>Search for an Artist</h2>
+
+    <h2>Playing right now: [SONG]</h2>
+    <h2>Search for an artist</h2>
 
     <form id="search-form">
       <div class="input-group">
@@ -34,25 +37,36 @@
   <script>
   var resultsPlaceholder = document.getElementById('results');
   var queue = document.getElementById('queue');
+  var addButtons = document.getElementsByClassName("btn-add");
+  var voteButtons = document.getElementsByClassName("btn-vote");
 
   var searchArtist = function (searchString) {
+
+    if(searchString.length <1 ){
+      return;
+    }
+
     $.ajax({
       url: '/search?text=' + searchString,
       dataType: 'json',
       success: function (response) {
 
         for (var i = 0; i < response.length; i++) {
-
           var artist = response[i].artist[0].name,
           track = response[i].name,
           trackId = response[i].id;
 
-          resultsPlaceholder.innerHTML += '<li class="list-group-item">' + artist + ': ' + track + ': ' + trackId +
-          ' <button id=' + trackId + ' class="btn btn-default btn-vote">Add to queue</button></li>';
+
+          resultsPlaceholder.innerHTML += '<li class="list-group-item">' + track + ' : ' + artist +
+          ' <button id=' + trackId + ' class="btn btn-default btn-add">Add to queue</button></li>';
+
         }
 
-        for (var i = 0; i < voteButtons.length; i++) {
-          voteButtons[i].addEventListener('click', voteTrack, false);
+        for (var i = 0; i < addButtons.length; i++) {
+          addButtons[i].addEventListener('click', function(){
+            voteTrack(this.id);
+            cleanNode(resultsPlaceholder);
+          }, false);
         }
 
       }
@@ -64,18 +78,14 @@
     searchArtist(document.getElementById('query').value);
   }, false);
 
-  var voteButtons = document.getElementsByClassName("btn-vote");
-
   var voteTrack = function(id) {
     this.classList += ' disabled';
-    console.log("Vote for track id: " + this.id);
     $.ajax({
-      url: '/upvote?track_id=' + this.id,
+      url: '/upvote?track_id=' + id,
       success: function (resp) {
-        console.log("hello");
         getList();
       }
-    })
+    });
   };
 
   var getList = function() {
@@ -84,15 +94,20 @@
       method: 'GET',
       dataType: 'json',
       success: function (data) {
-        console.log(data);
         updateQueue(data);
       }
     });
   }
 
+  var cleanNode = function (node){
+    while (node.hasChildNodes()) {
+      node.removeChild(node.lastChild);
+    }
+  };
+
   var updateQueue = function(data){
 
-    queue.innerHTML = "";
+    cleanNode(queue);
 
     for (var i = 0; i < data.length; i++) {
 
@@ -101,9 +116,7 @@
           trackId = data[i].id,
           votes = data[i].vote_count;
 
-      console.log(trackId);
-
-      queue.innerHTML += '<li class="list-group-item">' + artist + ': ' + track + ': ' + trackId +
+      queue.innerHTML += '<li class="list-group-item">' + artist + ': ' + track +
       '<span class="votes">' + votes + '</span>' +
       ' <button id=' + trackId + ' class="btn btn-default btn-vote">Vote</button>';
     }
@@ -112,13 +125,15 @@
       voteButtons[i].addEventListener('click', voteTrack, false);
     }
 
-    // $('#queue-list').innerHTML += '<li class="list-group-item">' + artist + ': ' + track + ': ' + trackId +
-    // ' <button id=' + trackId + ' class="btn btn-default btn-vote">Add to que</button>';
   };
 
   window.onload = function () {
     getList();
   };
+
+  setInterval(function () {
+    getList();
+  }, 5000);
 
   </script>
 </body>

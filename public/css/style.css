@@ -1,6 +1,10 @@
 body {
   padding: 20px;
+
   background: linen;
+  height: 100%;
+  width: 100%;
+
 }
 
 #search-form, .form-control {
@@ -14,6 +18,8 @@ body {
 .list-group-item {
   height: 56px;
   background-color: lightPink;
+  color: #000;
+
 }
 
 .btn-vote {
@@ -21,15 +27,21 @@ body {
   background: #ff99a8;
 }
 
+.btn-add {
+  float: right;
+}
+
 .votes {
   float: right;
   background: #ff667d;
   border: 0px solid;
   border-radius: 50%;
-  width: 20px;
-  height: 20px;
+  width: 24px;
+  height: 24px;
   text-align: center;
-  margin-left: 10px;
+  line-height: 24px;
+  color: #fff;
+  margin-left: 14px;
   margin-top: 7px;
 }
 
