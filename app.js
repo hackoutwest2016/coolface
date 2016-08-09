@@ -170,6 +170,6 @@ app.get('/nextSong', function(req,res) {
   res.send(getElemRemove.id);
 });
 
-console.log('Listening on 8888');
-app.listen(8888);
+console.log('Listening on 8888 typ');
+app.listen(process.env.PORT || 8888);
 
