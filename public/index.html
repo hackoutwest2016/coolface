@@ -59,7 +59,7 @@
           trackId = response[i].id;
 
 
-          resultsPlaceholder.innerHTML += '<li class="list-group-item">' + track + ' : ' + artist +
+          resultsPlaceholder.innerHTML += '<li class="list-group-item">' + track + ' - ' + artist +
           ' <button id=' + trackId + ' class="btn btn-default btn-add">Add to queue</button></li>';
 
         }
@@ -128,7 +128,7 @@
         disabled = "disabled";
       }
 
-      queue.innerHTML += '<li class="list-group-item">' + artist + ': ' + track +
+      queue.innerHTML += '<li class="list-group-item">' + artist + ' - ' + track +
       '<span class="votes">' + votes + '</span>' +
       ' <button id=' + trackId + ' class="btn btn-default btn-vote ' + disabled +'">Vote</button>';
     }
