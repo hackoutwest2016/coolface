@@ -40,6 +40,8 @@
   var addButtons = document.getElementsByClassName("btn-add");
   var voteButtons = document.getElementsByClassName("btn-vote");
 
+  var votedSongs = [];
+
   var searchArtist = function (searchString) {
 
     if(searchString.length <1 ){
@@ -64,6 +66,7 @@
 
         for (var i = 0; i < addButtons.length; i++) {
           addButtons[i].addEventListener('click', function(){
+            this.setAttribute("disabled", "true");
             voteTrack(this.id);
             cleanNode(resultsPlaceholder);
           }, false);
@@ -79,7 +82,10 @@
   }, false);
 
   var voteTrack = function(id) {
-    this.classList += ' disabled';
+    if(!hasUserVotedForThisSong(id)){
+      votedSongs.push(id);
+    };
+
     $.ajax({
       url: '/upvote?track_id=' + id,
       success: function (resp) {
@@ -116,15 +122,31 @@
           trackId = data[i].id,
           votes = data[i].vote_count;
 
+      var disabled = "";
+
+      if (hasUserVotedForThisSong(trackId)) {
+        disabled = "disabled";
+      }
+
       queue.innerHTML += '<li class="list-group-item">' + artist + ': ' + track +
       '<span class="votes">' + votes + '</span>' +
-      ' <button id=' + trackId + ' class="btn btn-default btn-vote">Vote</button>';
+      ' <button id=' + trackId + ' class="btn btn-default btn-vote ' + disabled +'">Vote</button>';
     }
 
     for (var i = 0; i < voteButtons.length; i++) {
-      voteButtons[i].addEventListener('click', voteTrack, false);
+      voteButtons[i].addEventListener('click', function(){
+        voteTrack(this.id);
+      }, false);
     }
 
+  };
+
+  var hasUserVotedForThisSong = function (id) {
+    if (votedSongs.indexOf(id) !== -1) {
+      return true;
+    } else {
+      return false;
+    }
   };
 
   window.onload = function () {
@@ -133,7 +155,7 @@
 
   setInterval(function () {
     getList();
-  }, 5000);
+  }, 15000);
 
   </script>
 </body>
