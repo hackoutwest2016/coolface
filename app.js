@@ -222,5 +222,7 @@ app.get('/scoreBoard', function(req,res) {
   res.send(sorted_list);
 });
 
-console.log('Listening on 8888 ish');
-app.listen(process.env.PORT || 8888);
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`Our app is running on port ${ PORT }`);
+});
