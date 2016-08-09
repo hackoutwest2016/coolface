@@ -6,11 +6,14 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
 
 import com.spotify.sdk.android.authentication.AuthenticationClient;
 import com.spotify.sdk.android.authentication.AuthenticationRequest;
 import com.spotify.sdk.android.authentication.AuthenticationResponse;
 import com.spotify.sdk.android.player.Config;
+import com.spotify.sdk.android.player.PlayerStateCallback;
 import com.spotify.sdk.android.player.Spotify;
 import com.spotify.sdk.android.player.ConnectionStateCallback;
 import com.spotify.sdk.android.player.Player;
@@ -24,6 +27,8 @@ public class MainActivity extends Activity implements
     private static final String CLIENT_ID = "a0e9a63aa5c34bc2bc0722eb7e9a0117";
     // TODO: Replace with your redirect URI
     private static final String REDIRECT_URI = "coolface://callback";
+
+    public static MainActivity mAc;
 
     // Request code that will be used to verify if the result comes from correct activity
     // Can be any integer
@@ -42,6 +47,24 @@ public class MainActivity extends Activity implements
         AuthenticationRequest request = builder.build();
 
         AuthenticationClient.openLoginActivity(this, REQUEST_CODE, request);
+
+        final Button button = (Button) findViewById(R.id.btn_main_activity);
+        button.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                mPlayer.getPlayerState(new PlayerStateCallback() {
+                    @Override
+                    public void onPlayerState(PlayerState playerState) {
+                        int i = playerState.positionInMs;
+                        int slut = playerState.durationInMs;
+                        int kvar = slut -i;
+                        TextView tv_main_activity =  (TextView) findViewById(R.id.tv_main_activity);
+                        tv_main_activity.setText(Integer.toString(kvar));
+                    }
+                });
+            }
+        });
+
+        mAc = this;
     }
 
     @Override
@@ -62,6 +85,8 @@ public class MainActivity extends Activity implements
                         mPlayer.play("spotify:track:5HSGgWzrQMtUAIZ7z5gF2a");
                         mPlayer.setRepeat(true);
                         mPlayer.setShuffle(true);
+                        System.out.println("Nur är saker på g!");
+
                     }
 
                     @Override
@@ -75,6 +100,7 @@ public class MainActivity extends Activity implements
 
     @Override
     public void onLoggedIn() {
+        mPlayer.queue("spotify:track:005aleV5byjflm7005uSfY");
         Log.d("MainActivity", "User logged in");
     }
 

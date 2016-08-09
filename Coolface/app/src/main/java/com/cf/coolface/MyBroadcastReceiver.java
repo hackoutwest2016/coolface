@@ -3,6 +3,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
+import android.widget.TextView;
 
 public class MyBroadcastReceiver extends BroadcastReceiver {
     static final class BroadcastTypes {
@@ -20,6 +21,7 @@ public class MyBroadcastReceiver extends BroadcastReceiver {
         long timeSentInMs = intent.getLongExtra("timeSent", 0L);
 
         String action = intent.getAction();
+        System.out.println("hej hej jag är brodscastS");
 
         if (action.equals(BroadcastTypes.METADATA_CHANGED)) {
             String trackId = intent.getStringExtra("id");
@@ -28,13 +30,16 @@ public class MyBroadcastReceiver extends BroadcastReceiver {
             String trackName = intent.getStringExtra("track");
             int trackLengthInSec = intent.getIntExtra("length", 0);
             // Do something with extracted information...
+            System.out.println(trackId+ " "+ trackName);
+            TextView tv = (TextView) MainActivity.mAc.findViewById(R.id.tv_main_activity);
+            tv.setText(trackName + " - " + artistName);
         } else if (action.equals(BroadcastTypes.PLAYBACK_STATE_CHANGED)) {
             boolean playing = intent.getBooleanExtra("playing", false);
             int positionInMs = intent.getIntExtra("playbackPosition", 0);
             // Do something with extracted information
         } else if (action.equals(BroadcastTypes.QUEUE_CHANGED)) {
             // Sent only as a notification, your app may want to respond accordingly.
-            Log.d("Brodcaster", "Que changed mother fucker!");
+            System.out.println("que yolo change omg wtf");
         }
     }
 }
