@@ -159,11 +159,8 @@ app.get('/list', function(req, res) {
 // Hash mapping track id to a play count
 played_count = {};
 
-played_count['4'] = 3;
-played_count['9'] = 9;
-played_count['2'] = 1;
-played_count['5'] = 8;
-played_count['1'] = 4;
+played_count['1j8z4TTjJ1YOdoFEDwJTQa'] = 3;
+played_count['5nqof30JRAkvfxcj9cgS0n'] = 9;
 
 
 
@@ -219,7 +216,40 @@ app.get('/scoreBoard', function(req,res) {
     }
   }
 
-  res.send(sorted_list);
+  // GRAPHIIIIIIIIIIIIIC
+  artist_images = [];
+  
+  for (i = 0; i < sorted_list.length; i++) {
+    var track_id = sorted_list[i];
+    // Get track by track id from Spotify API
+    var options = {
+          url: 'https://api.spotify.com/v1/tracks/' + track_id,
+          json: true
+    };
+
+    request.get(options, function(error, response, body) {
+      if (!error && response.statusCode === 200) {
+
+        for (var i = 0; i < body.artists.length; i++) {
+
+          var artistId = body.artists[i].id;
+
+          var options = {
+                url: 'https://api.spotify.com/v1/artists/' + artistId,
+                json: true
+          };
+          
+          request.get(options, function(error, response, body) {
+            if (!error && response.statusCode === 200) {
+              artist_images.push(body.images.pop()); 
+            }
+          });
+        }
+      }
+    });
+  }
+
+  res.send(artist_images);
 });
 
 console.log('Listening on 8888');
