@@ -265,6 +265,26 @@ function sort_list() {
 }
 
 // Query parameter: ?track_id=value
+app.get('/track_image', function(req,res) {
+
+  // Track ID
+  var track_id = req.query.track_id;
+
+  // Get track by track id from Spotify API
+  var options = {
+        url: 'https://api.spotify.com/v1/tracks/' + track_id,
+        json: true
+  };
+
+  request.get(options, function(error, response, body) {
+    
+    if (!error && response.statusCode === 200) {
+      res.send(body.album.images.pop().url);
+    }
+  });
+});
+
+// Query parameter: ?track_id=value
 app.get('/artists', function(req,res) {
 
   // Track ID
