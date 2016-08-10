@@ -87,7 +87,7 @@ app.get('/upvote', function(req, res) {
 
     vote_count = votes[user_id];
 
-    if (vote_count > 4) {
+    if (vote_count > 400) {
       console.log('too many votes');
       res.send('Too many votes');
     } else {
@@ -108,43 +108,55 @@ app.get('/upvote', function(req, res) {
 
         // Check order of track list
         if (track_index > 0) {
-          if (track_list[track_index].vote_count > 
-              track_list[track_index-1].vote_count) {
-
-            // Change order in track list
-            var temp = track_list[track_index-1];
-            track_list[track_index-1] = track_list[track_index];
-            track_list[track_index] = temp;
-
-            // Update HashMap
-            tracks[track_id] = track_index-1;
-            tracks[temp.id] = track_index;
+          var insert_index = track_index;
+          while (insert_index - 1 >= 0 && 
+                 track_list[track_index].vote_count > 
+                 track_list[insert_index-1].vote_count) {
+            insert_index = insert_index-1;
           }
+
+          // Change order in track list, bubble up
+          var temp = track_list[insert_index];
+          track_list[insert_index] = track_list[track_index];
+          track_list[track_index] = temp;
+
+          // Update HashMap
+          
+          tracks[track_id] = insert_index;
+          console.log(tracks);
+          console.log(insert_index);
+          console.log(track_index);
+          for (var i = insert_index + 1; i <= track_index; i++) {
+            var temp_id = track_list[i].id;
+            console.log(track_list);
+            console.log('i: '+i);
+            console.log('temp_id:'+temp_id);
+            tracks[temp_id] = i;
+          }
+          console.log(tracks);
         }
-        
         res.send(JSON.stringify(track_list));
       } else {
+        // Get track by track id from Spotify API
+        var options = {
+          url: 'https://api.spotify.com/v1/tracks/' + track_id,
+          json: true
+        };
 
-      // Get track by track id from Spotify API
-      var options = {
-            url: 'https://api.spotify.com/v1/tracks/' + track_id,
-            json: true
-          };
+        request.get(options, function(error, response, body) {
+          if (!error && response.statusCode === 200) {
 
-          request.get(options, function(error, response, body) {
-            if (!error && response.statusCode === 200) {
-
-              album_name = body.album.name;
-              img = body.album.images.pop().url;
-              artists = [];
-              for (var i = 0; i < body.artists.length; i++) {
-                artists.push({name: body.artists[i].name});
-              }
-              var track = {img: img, album_name: album_name, artists: artists, id: track_id, track_name: body.name, vote_count: 1}
-              track_list.push(track);
-              tracks[track_id] = track_list.length - 1;
-              res.send(JSON.stringify(track_list));
+            album_name = body.album.name;
+            img = body.album.images.pop().url;
+            artists = [];
+            for (var i = 0; i < body.artists.length; i++) {
+              artists.push({name: body.artists[i].name});
             }
+            var track = {img: img, album_name: album_name, artists: artists, id: track_id, track_name: body.name, vote_count: 1}
+            track_list.push(track);
+            tracks[track_id] = track_list.length - 1;
+            res.send(JSON.stringify(track_list));
+          }
         });
       }
     }
