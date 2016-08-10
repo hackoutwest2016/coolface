@@ -23,7 +23,7 @@
 
     <div class="scroll-left">
 
-    <p> <span id="currentSong"></span></p>
+    <p> <img class="note" style="image-size:10px" src="images/lp.png"> <span id="currentSong"></span></p>
 
     </div>
     <form id="search-form">
@@ -218,7 +218,7 @@
         var name = data.artists[0].name,
             track = data.track_name;
 
-        var currentSong = <img class="note" style="image-size:10px" src="images/lp.png"> + name + " - " + track;
+        var currentSong = name + " - " + track;
 
         $('#currentSong').html(currentSong);
       }
