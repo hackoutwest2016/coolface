@@ -20,7 +20,7 @@ app.get('/search', function(req, res) {
         url: 'https://api.spotify.com/v1/search',
         qs: {
             q: search_string,
-            limit: 2,
+            limit: 10,
             offset: 0,
             type: 'track'
           },
@@ -196,15 +196,17 @@ app.get('/list', function(req, res) {
 // Hash mapping track id to a play count
 played_count = {};
 
-played_count['1j8z4TTjJ1YOdoFEDwJTQa'] = 3;
-played_count['5nqof30JRAkvfxcj9cgS0n'] = 9;
-
-
 current_song = undefined;
 /* Returns the next song (the highest scoring) in the list*/
-app.get('/nextSong', function(req,res) {
+app.get('/next_song', function(req,res) {
 
   if (track_list.length != 0) { // check that the list isn't empty
+
+    // Reset the users votes whenever next_song is called
+    for (var key in votes) {
+      votes[key] = 0;
+    }
+
     current_song = track_list[0];
     var track_id = current_song.id;
     delete tracks[track_id];
@@ -235,7 +237,6 @@ app.get('/current_song', function(req,res) {
 });
 
 /* A graphic scoreboard of the most played tracks*/
-
 sorted_track_count_list = []; 
 function sort_list() {
 
@@ -305,7 +306,6 @@ app.get('/artistimage', function(req, res) {
     }
   });
 });
-
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
