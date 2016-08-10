@@ -4,17 +4,11 @@ var express = require('express'); // Express web server framework
 var request = require('request'); // "Request" library
 var querystring = require('querystring');
 var cookieParser = require('cookie-parser');
-
-var client_id = '5dfc349eb3dc4052a6cb6907a5fb0454'; // Your client id
-var client_secret = '332107a93cda42eb8f1e9e304c08d446'; // Your secret
-var redirect_uri = 'http://localhost:8888/callback'; // Your redirect uri
-
-var stateKey = 'spotify_auth_state';
+var path = require('path');
 
 var app = express();
 
-app.use(express.static(__dirname + '/public'))
-   .use(cookieParser());
+app.use(express.static(__dirname + '/public')).use(cookieParser());
 
 app.get('/search', function(req, res) {
 
@@ -26,7 +20,7 @@ app.get('/search', function(req, res) {
         url: 'https://api.spotify.com/v1/search',
         qs: {
             q: search_string,
-            limit: 2,
+            limit: 10,
             offset: 0,
             type: 'track'
           },
@@ -65,116 +59,135 @@ votes = {};
 
 // Set cookie
 cookie_name = 'user_id';
-app.get('/cookie', function(req, res){ 
+app.get('/setcookie', function(req, res){ 
   var user_id = req.cookies ? req.cookies['user_id'] : null;
   if (user_id == null) {
+    res.cookie('user_id', unique_id);
     votes[unique_id] = 0;
     unique_id++;
   } else {
     votes[user_id] = 0;
   }
-  res.send('OK');
+  res.send('Cookie set');
+});
+
+app.get('/clearcookie', function(req,res){
+     res.clearCookie('user_id');
+     res.send('Cookie deleted');
 });
 
 // Upvote a track in the list, adds a track to track list
 // if it's not in the list
 app.get('/upvote', function(req, res) {
 
-  // Check how many votes
+  // Check cookie
   var user_id = req.cookies ? req.cookies['user_id'] : null;
-  if (user_id != null) {
-    console.log(user_id);
-    console.log(votes);
+  if (user_id == null) {
+    res.send('Cookie not set');
+  } else {
     vote_count = votes[user_id];
     if (vote_count > 3) {
       res.send('Too many votes');
     } else {
       votes[user_id] = votes[user_id] + 1; 
     }
-  }
 
-  // Track ID
-  track_id = req.query.track_id;
+    // Track ID
+    track_id = req.query.track_id;
 
-  var track_index = tracks[track_id];
-  if (track_index != null) {
-    var track = track_list[track_index];
-    track.vote_count = track.vote_count + 1;
+    var track_index = tracks[track_id];
+    if (track_index != null) {
+      var track = track_list[track_index];
+      track.vote_count = track.vote_count + 1;
 
-    // Check order of track list
-    if (track_index > 0) {
-      if (track_list[track_index].vote_count > 
-          track_list[track_index-1].vote_count) {
+      // Check order of track list
+      if (track_index > 0) {
+        if (track_list[track_index].vote_count > 
+            track_list[track_index-1].vote_count) {
 
-        // Change order in track list
-        var temp = track_list[track_index-1];
-        track_list[track_index-1] = track_list[track_index];
-        track_list[track_index] = temp;
+          // Change order in track list
+          var temp = track_list[track_index-1];
+          track_list[track_index-1] = track_list[track_index];
+          track_list[track_index] = temp;
 
-        // Update HashMap
-        tracks[track_id] = track_index-1;
-        tracks[temp.id] = track_index;
-      }
-    }
-
-    res.send(JSON.stringify(track_list));
-  } else {
-
-    // Get track by track id from Spotify API
-    var options = {
-          url: 'https://api.spotify.com/v1/tracks/' + track_id,
-          json: true
-        };
-
-    request.get(options, function(error, response, body) {
-      if (!error && response.statusCode === 200) {
-
-        album_name = body.album.name;
-        artists = [];
-        for (var i = 0; i < body.artists.length; i++) {
-          artists.push({name: body.artists[i].name});
+          // Update HashMap
+          tracks[track_id] = track_index-1;
+          tracks[temp.id] = track_index;
         }
-        var track = {album_name: album_name, artists: artists, id: track_id, track_name: body.name, vote_count: 1}
-        track_list.push(track);
-        tracks[track_id] = track_list.length - 1;
-        res.send(JSON.stringify(track_list));
       }
-    });
+
+      res.send(JSON.stringify(track_list));
+    } else {
+
+      // Get track by track id from Spotify API
+      var options = {
+            url: 'https://api.spotify.com/v1/tracks/' + track_id,
+            json: true
+          };
+
+      request.get(options, function(error, response, body) {
+        if (!error && response.statusCode === 200) {
+
+          album_name = body.album.name;
+          img = body.album.images.pop().url;
+          artists = [];
+          for (var i = 0; i < body.artists.length; i++) {
+            artists.push({name: body.artists[i].name});
+          }
+          var track = {img: img, album_name: album_name, artists: artists, id: track_id, track_name: body.name, vote_count: 1}
+          track_list.push(track);
+          tracks[track_id] = track_list.length - 1;
+          res.send(JSON.stringify(track_list));
+        }
+      });
+    }
   }
 });
 
 // Downvotes a track in the list
 app.get('/downvote', function(req, res) {
 
-  // Track ID
-  track_id = req.query.track_id;
-
-  var track_index = tracks[track_id];
-  if (track_index != null) {
-
-    var track = track_list[track_index];
-    console.log(track);
-
-    track.vote_count = track.vote_count - 1;
-
-    // Check order of track list
-    if (track_index < track_list.length - 1) {
-      if (track_list[track_index].vote_count < 
-          track_list[track_index+1].vote_count) {
-
-        // Change order in track list
-        var temp = track_list[track_index+1];
-        track_list[track_index+1] = track_list[track_index];
-        track_list[track_index] = temp;
-
-        // Update HashMap
-        tracks[track_id] = track_index+1;
-        tracks[temp.id] = track_index;
-      }
+  // Check cookie
+  var user_id = req.cookies ? req.cookies['user_id'] : null;
+  if (user_id == null) {
+    res.send('Cookie not set');
+  } else {
+    vote_count = votes[user_id];
+    if (vote_count > 3) {
+      res.send('Too many votes');
+    } else {
+      votes[user_id] = votes[user_id] + 1; 
     }
+    // Track ID
+    track_id = req.query.track_id;
 
-    res.send(JSON.stringify(track_list));
-  } 
+    var track_index = tracks[track_id];
+    if (track_index != null) {
+
+      var track = track_list[track_index];
+      console.log(track);
+
+      track.vote_count = track.vote_count - 1;
+
+      // Check order of track list
+      if (track_index < track_list.length - 1) {
+        if (track_list[track_index].vote_count < 
+            track_list[track_index+1].vote_count) {
+
+          // Change order in track list
+          var temp = track_list[track_index+1];
+          track_list[track_index+1] = track_list[track_index];
+          track_list[track_index] = temp;
+
+          // Update HashMap
+          tracks[track_id] = track_index+1;
+          tracks[temp.id] = track_index;
+        }
+      }
+
+      res.send(JSON.stringify(track_list));
+    }
+  }
 });
 
 /* Returns the track list */
@@ -185,16 +198,18 @@ app.get('/list', function(req, res) {
 // Hash mapping track id to a play count
 played_count = {};
 
-played_count['1j8z4TTjJ1YOdoFEDwJTQa'] = 3;
-played_count['5nqof30JRAkvfxcj9cgS0n'] = 9;
-
-
 current_song = undefined;
 /* Returns the next song (the highest scoring) in the list*/
-app.get('/nextSong', function(req,res) {
+app.get('/next_song', function(req,res) {
 
   if (track_list.length != 0) { // check that the list isn't empty
-    var current_song = track_list[0];
+
+    // Reset the users votes whenever next_song is called
+    for (var key in votes) {
+      votes[key] = 0;
+    }
+
+    current_song = track_list[0];
     var track_id = current_song.id;
     delete tracks[track_id];
 
@@ -224,7 +239,6 @@ app.get('/current_song', function(req,res) {
 });
 
 /* A graphic scoreboard of the most played tracks*/
-
 sorted_track_count_list = []; 
 function sort_list() {
 
@@ -250,6 +264,7 @@ function sort_list() {
   }
 }
 
+// Query parameter: ?track_id=value
 app.get('/artists', function(req,res) {
 
   // Track ID
@@ -265,20 +280,23 @@ app.get('/artists', function(req,res) {
     
     if (!error && response.statusCode === 200) {
 
+      // loop over all artists for a track
       artists = [];
       for (var i = 0; i < body.artists.length; i++) {
         artists.push(body.artists[i].id);
       }
-      res.send(artists);
+      res.send(artists); // send list of artists to client
     }
   });
 });
 
+// Query parameter: ?artist_id=value
 app.get('/artistimage', function(req, res) {
 
   // Artist ID
   artist_id = req.query.artist_id;
 
+  // API call for getting an artist by artist ID
   var options = {
         url: 'https://api.spotify.com/v1/artists/' + artist_id,
         json: true
@@ -286,13 +304,13 @@ app.get('/artistimage', function(req, res) {
 
   request.get(options, function(error, response, body) {
     if (!error && response.statusCode === 200) {
-      res.send(body.images.pop().url);
+      res.send(body.images.pop().url); // send the image url to client.
     }
   });
 });
 
-
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
+
     console.log(`Our app is running on port ${ PORT }`);
 });

@@ -8,7 +8,7 @@ body {
 }
 
 #search-form, .form-control {
-  margin-bottom: 60px;
+  margin-bottom: 0px;
   background-color: lightPink;
 }
 #search{
@@ -70,5 +70,4 @@ h1{
 h2{
   color:HotPink;
 }
-
 
