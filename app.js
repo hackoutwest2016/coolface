@@ -26,7 +26,7 @@ app.get('/search', function(req, res) {
         url: 'https://api.spotify.com/v1/search',
         qs: {
             q: search_string,
-            limit: 2,
+            limit: 10,
             offset: 0,
             type: 'track'
           },
@@ -290,7 +290,6 @@ app.get('/artistimage', function(req, res) {
     }
   });
 });
-
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
