@@ -66,9 +66,10 @@
         cleanNode(resultsPlaceholder);
 
         for (var i = 0; i < response.length; i++) {
-          var artist = response[i].artist[0].name,
-          track = response[i].name,
-          trackId = response[i].id;
+          var artist  = response[i].artist[0].name,
+              track   = response[i].name,
+              trackId = response[i].id,
+              imgURL  = response[i].img;
 
           var disabled = "";
 
@@ -77,7 +78,7 @@
           }
 
 
-          resultsPlaceholder.innerHTML += '<li class="list-group-item">' + track + ' - ' + artist +
+          resultsPlaceholder.innerHTML += '<li class="list-group-item"><img class="cover" src="' + imgURL + '"> ' + track + ' - ' + artist +
           ' <button id=' + trackId + ' class="btn btn-default btn-add ' + disabled +'">Add to queue</button></li>';
 
         }
@@ -136,10 +137,11 @@
 
     for (var i = 0; i < data.length; i++) {
 
-      var artist = data[i].artists[0].name,
-          track = data[i].track_name,
+      var artist  = data[i].artists[0].name,
+          track   = data[i].track_name,
           trackId = data[i].id,
-          votes = data[i].vote_count;
+          votes   = data[i].vote_count,
+          imgURL  = data[i].img;
 
       var disabled = "";
 
@@ -147,7 +149,7 @@
         disabled = "disabled";
       }
 
-      queue.innerHTML += '<li class="list-group-item">' + artist + ' - ' + track +
+      queue.innerHTML += '<li class="list-group-item"><img class="cover" src="' + imgURL + '"> ' + artist + ' - ' + track +
       '<span class="votes">' + votes + '</span>' +
       ' <button id=' + trackId + ' class="btn btn-default btn-vote ' + disabled +'">Vote</button>';
     }
@@ -168,7 +170,17 @@
     }
   };
 
+  var setCookie = function () {
+    $.ajax({
+      url: '/setcookie',
+      success: function (data) {
+        console.log(data);
+      }
+    });
+  }
+
   window.onload = function () {
+    setCookie();
     getList();
   };
 
