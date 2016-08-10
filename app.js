@@ -87,7 +87,7 @@ app.get('/upvote', function(req, res) {
 
     vote_count = votes[user_id];
 
-    if (vote_count > 3) {
+    if (vote_count > 4) {
       console.log('too many votes');
       res.send('Too many votes');
     } else {
