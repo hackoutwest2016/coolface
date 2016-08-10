@@ -239,7 +239,7 @@ app.get('/set_current_song', function(req,res) {
   // Track ID
   var track_id = req.query.track_id;
 
-  if (track_id != current_song.id) {
+  if (current_song != undefined && track_id != current_song.id) {
     // Get track by track id from Spotify API
     var options = {
           url: 'https://api.spotify.com/v1/tracks/' + track_id,
