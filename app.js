@@ -230,7 +230,13 @@ app.get('/next_song', function(req,res) {
 
     res.send(track_id);
   } else {
-    res.send('error');
+    var tracks = ["1UGiFnaaen7IQGYlv68TI4","2TTsAJrzIySg5xVqVV5s5x", "62oe0gzcGgId4AQjHQllFh", "4oxpQ0HQymKMPaY9QKwYmq", "0dhynfLhSpcbyJnr3xy4hX"];
+   
+    var tr = tracks[Math.floor(Math.random() * myArraytracks.length)];
+
+
+    
+    res.send(tr);
   }
 });
 
