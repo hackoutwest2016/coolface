@@ -73,3 +73,23 @@ h2{
   color:HotPink;
 }
 
+.cover {
+  height: 100%;
+  margin-right: 4px;
+}
+
+.dancer {
+  height: 40px;
+}
+
+@keyframes blink {
+   50% { border-color: lightblue; }
+}
+
+.nowPlaying {
+  text-align: center;
+  padding: 20px;
+  border: 2px solid white;
+  border-radius: 20px;
+  animation: blink .5s step-end infinite alternate;
+}

@@ -11,15 +11,15 @@
 </head>
 <body>
   <div class="container" overflow: auto>
-    
+
     <div>
+
       <h1><img class="mainlogo"  src="images/pukebox1.png">
       <img class="logo"  src="images/Spotify_Icon_RGB_White.png">
       </h1>
-      
     </div>
     
-    <h2>playing right now: [SONG]</h2>
+    <h2 class="nowPlaying">Playing right now:  <span id="currentSong"></span></h2>
 
     <form id="search-form">
       <div class="input-group">
@@ -31,12 +31,14 @@
     </form>
 
     <div>
-      <ul id="results" class="list-group"></ul>
+      <ul id="results" class="list-group">
+      </ul>
     </div>
 
     <div class="list">
-      <h2>queue</h2>
-      <ul id="queue" class="list-group"></ul>
+      <h2 id="queHeader">Queue <img class="dancer" src="images/mchammer.gif" alt="" /></h2>
+      <ul id="queue" class="list-group">
+      </ul>
     </div>
   </div>
 
@@ -62,9 +64,12 @@
         cleanNode(resultsPlaceholder);
 
         for (var i = 0; i < response.length; i++) {
-          var artist = response[i].artist[0].name,
-          track = response[i].name,
-          trackId = response[i].id;
+          var artist  = response[i].artist[0].name,
+              track   = response[i].name,
+              trackId = response[i].id,
+              imgURL  = trackImageUrl(trackId);
+
+              console.log(imgURL);
 
           var disabled = "";
 
@@ -73,7 +78,7 @@
           }
 
 
-          resultsPlaceholder.innerHTML += '<li class="list-group-item">' + track + ' - ' + artist +
+          resultsPlaceholder.innerHTML += '<li class="list-group-item"><img class="cover" src="' + imgURL + '"> ' + track + ' - ' + artist +
           ' <button id=' + trackId + ' class="btn btn-default btn-add ' + disabled +'">Add to queue</button></li>';
 
         }
@@ -132,10 +137,11 @@
 
     for (var i = 0; i < data.length; i++) {
 
-      var artist = data[i].artists[0].name,
-          track = data[i].track_name,
+      var artist  = data[i].artists[0].name,
+          track   = data[i].track_name,
           trackId = data[i].id,
-          votes = data[i].vote_count;
+          votes   = data[i].vote_count,
+          imgURL  = data[i].img;
 
       var disabled = "";
 
@@ -143,7 +149,7 @@
         disabled = "disabled";
       }
 
-      queue.innerHTML += '<li class="list-group-item">' + artist + ' - ' + track +
+      queue.innerHTML += '<li class="list-group-item"><img class="cover" src="' + imgURL + '"> ' + artist + ' - ' + track +
       '<span class="votes">' + votes + '</span>' +
       ' <button id=' + trackId + ' class="btn btn-default btn-vote ' + disabled +'">Vote</button>';
     }
@@ -164,13 +170,55 @@
     }
   };
 
+  var setCookie = function () {
+    $.ajax({
+      url: '/setcookie',
+      success: function (data) {
+        console.log(data);
+      }
+    });
+  }
+
+  var trackImageUrl = function (track){
+
+    var url = null;
+
+    $.ajax({
+      url: '/track_image?track_id=' + track,
+      async: false,
+      success: function (data) {
+        url = data;
+      }
+    });
+
+    return url;
+  }
+
   window.onload = function () {
+    setCookie();
     getList();
+    updateCurrentSong();
   };
 
   setInterval(function () {
     getList();
+    updateCurrentSong();
   }, 15000);
+
+  var updateCurrentSong = function(){
+    $.ajax({
+      url: '/get_current_song',
+      success: function (data) {
+
+        var name = data.artists[0].name,
+            track = data.track_name;
+
+        var currentSong = name + " - " + track;
+
+        $('#currentSong').html(currentSong);
+      }
+    });
+  }
 
   </script>
 </body>
