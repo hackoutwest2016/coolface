@@ -128,7 +128,7 @@ app.get('/upvote', function(req, res) {
         if (!error && response.statusCode === 200) {
 
           album_name = body.album.name;
-          img = body.album.images.pop();
+          img = body.album.images.pop().url;
           artists = [];
           for (var i = 0; i < body.artists.length; i++) {
             artists.push({name: body.artists[i].name});
