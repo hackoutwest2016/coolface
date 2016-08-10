@@ -18,10 +18,7 @@
       </h1>
     </div>
 
-
-
-
-    <h2>Playing right now: [SONG]</h2>
+    <h2 class="nowPlaying">Playing right now:  <span id="currentSong"></span></h2>
     <h2>Search for an artist</h2>
 
     <form id="search-form">
@@ -34,12 +31,14 @@
     </form>
 
     <div>
-      <ul id="results" class="list-group"></ul>
+      <ul id="results" class="list-group">
+      </ul>
     </div>
 
     <div class="list">
-      <h2>Queue</h2>
-      <ul id="queue" class="list-group"></ul>
+      <h2 id="queHeader">Queue <img class="dancer" src="images/mchammer.gif" alt="" /></h2>
+      <ul id="queue" class="list-group">
+      </ul>
     </div>
   </div>
 
@@ -198,11 +197,28 @@
   window.onload = function () {
     setCookie();
     getList();
+    updateCurrentSong();
   };
 
   setInterval(function () {
     getList();
+    updateCurrentSong();
   }, 15000);
+
+  var updateCurrentSong = function(){
+    $.ajax({
+      url: '/get_current_song',
+      success: function (data) {
+
+        var name = data.artists[0].name,
+            track = data.track_name;
+
+        var currentSong = name + " - " + track;
+
+        $('#currentSong').html(currentSong);
+      }
+    });
+  }
 
   </script>
 </body>
