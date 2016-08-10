@@ -34,6 +34,7 @@ import com.spotify.sdk.android.player.PlayerState;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Timer;
 
@@ -65,6 +66,18 @@ public class MainActivity extends Activity implements
     private static SpotifyApi api;
     private static String currentTrackID = "";
     private static String nextTrackId = "";
+    private static PlayConfig pc;
+    private static CountDownTimer timer = new CountDownTimer(100000000, 1000) {
+        @Override
+        public void onTick(long millisUntilFinished) {
+            System.out.println("SER DU DET HÄR ÄR TIMERN FEL SOM SATAN");
+        }
+
+        @Override
+        public void onFinish() {
+            System.out.println("SERU DET DET HÄR ÄR ALLTING FEL SOM IN I ");
+        }
+    };
 
     private Player mPlayer;
     @Override
@@ -85,6 +98,9 @@ public class MainActivity extends Activity implements
             public void onClick(View v) {
                 //displaySongInfo();
                 //setNextTrack();
+
+                //fjortisByte();
+
             }
         });*/
 
@@ -117,7 +133,7 @@ public class MainActivity extends Activity implements
                 }catch (Exception e){System.out.println("nått jävla error va " + e);}
 
                 final TextView tv_time_left = (TextView) findViewById(R.id.tv_time_left);
-                new CountDownTimer(track.duration_ms - 10000, 1000) {
+                timer = new CountDownTimer(track.duration_ms - 10000, 1000) {
 
                     public void onTick(long millisUntilFinished) {
                         tv_time_left.setText("suknder kvar till köa av ny låt: " + millisUntilFinished / 1000);
@@ -141,6 +157,62 @@ public class MainActivity extends Activity implements
 
     }
 
+    private void fjortisByte(){
+        System.out.println("FJORTIIISBYYYTE");
+        timer.cancel();
+        timer = null;
+        System.out.println("FJORTIIISBYYYasdasd213121222222222222222TE");
+        // Instantiate the RequestQueue.
+        RequestQueue queue = Volley.newRequestQueue(this);
+        String url ="http://coolface.herokuapp.com/next_song";
+        mPlayer.clearQueue();
+
+        final TextView tv_time_left = (TextView) findViewById(R.id.tv_time_left);
+        // Request a string response from the provided URL.
+
+        System.out.println("FJORTIIISBYYY111111111111111111111111111111111111111111111111111111TE");
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
+                new com.android.volley.Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        System.out.println("!!!!!!!!!!!!!!Next track response " + response);
+                        if(response.equalsIgnoreCase("error")){
+                            //nextTrackId = "6KAu1eef7xY0Gkg1WQkpNT";
+                            //Collections.shuffle(pc.getUris());
+                            int rnd = (int) Math.floor(Math.random()*pc.getUris().size());
+                            System.out.println(rnd);
+                            mPlayer.queue(pc.getUris().get(rnd));
+                            for (String s: pc.getUris()) {
+                                mPlayer.queue(s);
+                                System.out.println(s);
+                            }
+
+                            mPlayer.skipToNext();
+
+                            System.out.println("FJORTISBYTER NU! till " + pc.getUris().get(0));
+                        }else {
+                            nextTrackId = response;
+                            if(nextTrackId.equals(currentTrackID)){
+                                System.out.println("SAMMA LÅTE IGEN SKIPPA YO");
+                                fjortisByte();
+                            }else {
+                                mPlayer.queue("spotify:track:" + nextTrackId);
+                                currentTrackID = nextTrackId;
+                                mPlayer.skipToNext();
+                                System.out.println("FJORTISBYTER NU!");
+                            }
+                        }
+                    }
+                }, new com.android.volley.Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                tv_time_left.setText("GICK INTE HÄMTA NÄSTA LÅT");
+            }
+        });
+        // Add the request to the RequestQueue.
+        queue.add(stringRequest);
+    }
+
     private void setNextTrack(){
         System.out.println("setting next track");
 
@@ -157,6 +229,8 @@ public class MainActivity extends Activity implements
                         System.out.println("!!!!!!!!!!!!!!Next track response " + response);
                         if(response.equalsIgnoreCase("error")){
                             //nextTrackId = "6KAu1eef7xY0Gkg1WQkpNT";
+
+                            //mPlayer.queue("spotify:track:18tnAus3IplOZHWZ5twz5m");
                         }else {
                             nextTrackId = response;
                             if(nextTrackId.equals(currentTrackID)){
@@ -209,12 +283,13 @@ public class MainActivity extends Activity implements
                                 for (PlaylistTrack plt: playlist.tracks.items) {
                                     tracks.add("spotify:track:" + plt.track.id);
                                 }
-                                PlayConfig pc = PlayConfig.createFor(tracks);
+                                pc = PlayConfig.createFor(tracks);
                                 System.out.println();
 
                                 currentTrackID = tracks.get(0).substring(14);
 
-                                mPlayer.play(pc);
+                                //mPlayer.play(pc);
+                                mPlayer.play("spotify:track:7yvF0KrTBRHzoW3glOSlvp");
                                 mPlayer.setRepeat(true);
                                 System.out.println("Nur är saker på g!");
                             }
@@ -297,6 +372,9 @@ public class MainActivity extends Activity implements
             currentTrackID = playerState.trackUri.substring(14);
             updateCurrentSongToBackend();
             displaySongInfo();
+        }else if(eventType == EventType.TRACK_START){
+            if(currentTrackID.equals(playerState.trackUri.substring(14)))
+                displaySongInfo();
 
         }
         Log.d("MainActivity", "Playback event received: " + eventType.name());

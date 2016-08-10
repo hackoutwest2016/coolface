@@ -56,10 +56,10 @@
         android:layout_below="@+id/tv_main_activity"/>
 
 
-    <!--<Button
+   <!-- <Button
         android:id="@+id/btn_main_activity"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/tv_time_left"
-        android:text="Vad ska vi göra med Henry?"/>-->
+        android:text="Fjortisbyte"/>*/-->
 </RelativeLayout>
