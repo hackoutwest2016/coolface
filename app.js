@@ -65,9 +65,7 @@ app.get('/setcookie', function(req, res){
     res.cookie('user_id', unique_id);
     votes[unique_id] = 0;
     unique_id++;
-  } else {
-    votes[user_id] = 0;
-  }
+  } 
   res.send('Cookie set');
 });
 
@@ -83,41 +81,49 @@ app.get('/upvote', function(req, res) {
   // Check cookie
   var user_id = req.cookies ? req.cookies['user_id'] : null;
   if (user_id == null) {
+    console.log('fail');
     res.send('Cookie not set');
   } else {
+
     vote_count = votes[user_id];
+
     if (vote_count > 3) {
+      console.log('too many votes');
       res.send('Too many votes');
     } else {
-      votes[user_id] = votes[user_id] + 1; 
-    }
-
-    // Track ID
-    track_id = req.query.track_id;
-
-    var track_index = tracks[track_id];
-    if (track_index != null) {
-      var track = track_list[track_index];
-      track.vote_count = track.vote_count + 1;
-
-      // Check order of track list
-      if (track_index > 0) {
-        if (track_list[track_index].vote_count > 
-            track_list[track_index-1].vote_count) {
-
-          // Change order in track list
-          var temp = track_list[track_index-1];
-          track_list[track_index-1] = track_list[track_index];
-          track_list[track_index] = temp;
-
-          // Update HashMap
-          tracks[track_id] = track_index-1;
-          tracks[temp.id] = track_index;
-        }
+      
+      if (!vote_count) {
+        votes[user_id] = 0;
       }
+      votes[user_id] = votes[user_id] + 1; 
 
-      res.send(JSON.stringify(track_list));
-    } else {
+      // Track ID
+      track_id = req.query.track_id;
+
+      var track_index = tracks[track_id];
+      if (track_index != null) {
+        
+        var track = track_list[track_index];
+        track.vote_count = track.vote_count + 1;
+
+        // Check order of track list
+        if (track_index > 0) {
+          if (track_list[track_index].vote_count > 
+              track_list[track_index-1].vote_count) {
+
+            // Change order in track list
+            var temp = track_list[track_index-1];
+            track_list[track_index-1] = track_list[track_index];
+            track_list[track_index] = temp;
+
+            // Update HashMap
+            tracks[track_id] = track_index-1;
+            tracks[temp.id] = track_index;
+          }
+        }
+        
+        res.send(JSON.stringify(track_list));
+      } else {
 
       // Get track by track id from Spotify API
       var options = {
@@ -125,21 +131,22 @@ app.get('/upvote', function(req, res) {
             json: true
           };
 
-      request.get(options, function(error, response, body) {
-        if (!error && response.statusCode === 200) {
+          request.get(options, function(error, response, body) {
+            if (!error && response.statusCode === 200) {
 
-          album_name = body.album.name;
-          img = body.album.images.pop().url;
-          artists = [];
-          for (var i = 0; i < body.artists.length; i++) {
-            artists.push({name: body.artists[i].name});
-          }
-          var track = {img: img, album_name: album_name, artists: artists, id: track_id, track_name: body.name, vote_count: 1}
-          track_list.push(track);
-          tracks[track_id] = track_list.length - 1;
-          res.send(JSON.stringify(track_list));
-        }
-      });
+              album_name = body.album.name;
+              img = body.album.images.pop().url;
+              artists = [];
+              for (var i = 0; i < body.artists.length; i++) {
+                artists.push({name: body.artists[i].name});
+              }
+              var track = {img: img, album_name: album_name, artists: artists, id: track_id, track_name: body.name, vote_count: 1}
+              track_list.push(track);
+              tracks[track_id] = track_list.length - 1;
+              res.send(JSON.stringify(track_list));
+            }
+        });
+      }
     }
   }
 });
@@ -156,36 +163,40 @@ app.get('/downvote', function(req, res) {
     if (vote_count > 3) {
       res.send('Too many votes');
     } else {
-      votes[user_id] = votes[user_id] + 1; 
-    }
-    // Track ID
-    track_id = req.query.track_id;
-
-    var track_index = tracks[track_id];
-    if (track_index != null) {
-
-      var track = track_list[track_index];
-      console.log(track);
-
-      track.vote_count = track.vote_count - 1;
-
-      // Check order of track list
-      if (track_index < track_list.length - 1) {
-        if (track_list[track_index].vote_count < 
-            track_list[track_index+1].vote_count) {
-
-          // Change order in track list
-          var temp = track_list[track_index+1];
-          track_list[track_index+1] = track_list[track_index];
-          track_list[track_index] = temp;
-
-          // Update HashMap
-          tracks[track_id] = track_index+1;
-          tracks[temp.id] = track_index;
-        }
+      if (!vote_count) {
+        votes[user_id] = 0;
       }
+      votes[user_id] = votes[user_id] + 1; 
+    
+      // Track ID
+      track_id = req.query.track_id;
 
-      res.send(JSON.stringify(track_list));
+      var track_index = tracks[track_id];
+      if (track_index != null) {
+
+        var track = track_list[track_index];
+        console.log(track);
+
+        track.vote_count = track.vote_count - 1;
+
+        // Check order of track list
+        if (track_index < track_list.length - 1) {
+          if (track_list[track_index].vote_count < 
+              track_list[track_index+1].vote_count) {
+
+            // Change order in track list
+            var temp = track_list[track_index+1];
+            track_list[track_index+1] = track_list[track_index];
+            track_list[track_index] = temp;
+
+            // Update HashMap
+            tracks[track_id] = track_index+1;
+            tracks[temp.id] = track_index;
+          }
+        }
+
+        res.send(JSON.stringify(track_list));
+      }
     }
   }
 });
