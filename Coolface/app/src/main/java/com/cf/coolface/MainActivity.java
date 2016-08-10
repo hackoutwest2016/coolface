@@ -2,12 +2,16 @@ package com.cf.coolface;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.android.volley.Request;
@@ -27,6 +31,8 @@ import com.spotify.sdk.android.player.Player;
 import com.spotify.sdk.android.player.PlayerNotificationCallback;
 import com.spotify.sdk.android.player.PlayerState;
 
+import java.io.InputStream;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
@@ -35,6 +41,8 @@ import kaaes.spotify.webapi.android.SpotifyApi;
 import kaaes.spotify.webapi.android.SpotifyService;
 import kaaes.spotify.webapi.android.models.Album;
 import kaaes.spotify.webapi.android.models.ArtistSimple;
+import kaaes.spotify.webapi.android.models.Playlist;
+import kaaes.spotify.webapi.android.models.PlaylistTrack;
 import kaaes.spotify.webapi.android.models.Track;
 import retrofit.Callback;
 import retrofit.RetrofitError;
@@ -85,6 +93,7 @@ public class MainActivity extends Activity implements
 
     private void displaySongInfo(){
         System.out.println("display song info called");
+        mPlayer.setShuffle(true);
         final TextView tv_main_activity =  (TextView) findViewById(R.id.tv_main_activity);
         SpotifyService spotify = api.getService();
 
@@ -101,8 +110,14 @@ public class MainActivity extends Activity implements
 
                 };
                 tv_main_activity.setText(track.name + " - " + artists);
+                try {
+                    String imgUrlStr = track.album.images.get(0).url;
+                    if(!imgUrlStr.isEmpty())
+                        new DownloadImageTask((ImageView) findViewById(R.id.iv_album_cover)).execute(imgUrlStr);
+                }catch (Exception e){System.out.println("nått jävla error va " + e);}
+
                 final TextView tv_time_left = (TextView) findViewById(R.id.tv_time_left);
-                new CountDownTimer(track.duration_ms - 10000, 2000) {
+                new CountDownTimer(track.duration_ms - 10000, 1000) {
 
                     public void onTick(long millisUntilFinished) {
                         tv_time_left.setText("suknder kvar till köa av ny låt: " + millisUntilFinished / 1000);
@@ -122,6 +137,8 @@ public class MainActivity extends Activity implements
                 tv_main_activity.setText("DENNA LÅTEN FINNS INTE TÖNT");
             }
         });
+
+
     }
 
     private void setNextTrack(){
@@ -137,10 +154,9 @@ public class MainActivity extends Activity implements
                 new com.android.volley.Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        //System.out.println("setting next track yo " + response);
+                        System.out.println("!!!!!!!!!!!!!!Next track response " + response);
                         if(response.equalsIgnoreCase("error")){
                             //nextTrackId = "6KAu1eef7xY0Gkg1WQkpNT";
-                            //DO NATHING
                         }else {
                             nextTrackId = response;
                             mPlayer.queue("spotify:track:" + nextTrackId);
@@ -169,17 +185,41 @@ public class MainActivity extends Activity implements
                 api = new SpotifyApi();
                 api.setAccessToken(accessToken);
 
-                Config playerConfig = new Config(this, response.getAccessToken(), CLIENT_ID);
+                final Config playerConfig = new Config(this, response.getAccessToken(), CLIENT_ID);
                 Spotify.getPlayer(playerConfig, this, new Player.InitializationObserver() {
                     @Override
-                    public void onInitialized(Player player) {
+                    public void onInitialized(final Player player) {
                         mPlayer = player;
                         mPlayer.addConnectionStateCallback(MainActivity.this);
                         mPlayer.addPlayerNotificationCallback(MainActivity.this);
-                        mPlayer.play("spotify:track:6KAu1eef7xY0Gkg1WQkpNT");
-                        mPlayer.setRepeat(true);
-                        mPlayer.setShuffle(true);
-                        System.out.println("Nur är saker på g!");
+                        SpotifyService spotify = api.getService();
+                        System.out.println("lets start shit");
+
+                        spotify.getPlaylist("davemcgroin", "3YkABRNISMemrLaR02K1sR", new Callback<Playlist>() {
+                            @Override
+                            public void success(Playlist playlist, Response response) {
+                                ArrayList<String> tracks = new ArrayList<String>();
+                                tracks.add("spotify:track:7yvF0KrTBRHzoW3glOSlvp");
+
+                                for (PlaylistTrack plt: playlist.tracks.items) {
+                                    tracks.add("spotify:track:" + plt.track.id);
+                                }
+                                PlayConfig pc = PlayConfig.createFor(tracks);
+                                System.out.println();
+
+                                currentTrackID = tracks.get(0).substring(14);
+
+                                mPlayer.play(pc);
+                                mPlayer.setRepeat(true);
+                                System.out.println("Nur är saker på g!");
+                            }
+
+                            @Override
+                            public void failure(RetrofitError error) {
+                                System.out.println("HEJ ERROR " + error.getMessage());
+                            }
+                        });
+
                     }
 
                     @Override
@@ -191,9 +231,38 @@ public class MainActivity extends Activity implements
         }
     }
 
+    private void startShit(){
+        SpotifyService spotify = api.getService();
+        System.out.println("lets start shit");
+        spotify.getPlaylist("1149123130", "0A3rNq9wY6OQ0dYxj0JXqS", new Callback<Playlist>() {
+            @Override
+            public void success(Playlist playlist, Response response) {
+                System.out.print(response.getReason());
+                ArrayList<String> tracks = new ArrayList<String>();
+                tracks.add("spotify:track:7yvF0KrTBRHzoW3glOSlvp");
+                for (PlaylistTrack plt: playlist.tracks.items) {
+                    tracks.add(plt.track.id);
+                }
+                PlayConfig pc = PlayConfig.createFor(tracks);
+                pc.withTrackIndex(0);
+                currentTrackID = tracks.get(0).substring(14);
+                mPlayer.play(pc);
+                mPlayer.setRepeat(true);
+                mPlayer.setShuffle(true);
+                System.out.println("Nur är saker på g!");
+            }
+
+            @Override
+            public void failure(RetrofitError error) {
+                System.out.println("HEJ ERROR " + error.getMessage());
+            }
+        });
+    }
+
     @Override
     public void onLoggedIn() {
         Log.d("MainActivity", "User logged in");
+        //startShit();
     }
 
     @Override
@@ -219,9 +288,38 @@ public class MainActivity extends Activity implements
     @Override
     public void onPlaybackEvent(EventType eventType, PlayerState playerState) {
         if(eventType == EventType.TRACK_CHANGED){
+            System.out.println(playerState.trackUri);
+            currentTrackID = playerState.trackUri.substring(14);
+            updateCurrentSongToBackend();
             displaySongInfo();
+
         }
         Log.d("MainActivity", "Playback event received: " + eventType.name());
+    }
+
+    private void updateCurrentSongToBackend(){
+        System.out.println("setting next track");
+
+        // Instantiate the RequestQueue.
+        RequestQueue queue = Volley.newRequestQueue(this);
+        String url ="http://coolface.herokuapp.com/set_current_song?track_id=" + currentTrackID;
+
+        // Request a string response from the provided URL.
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
+                new com.android.volley.Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        System.out.println("Set current song to backend " + response);
+
+                    }
+                }, new com.android.volley.Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                System.out.println("GICK INTE UPPDATERA CURRENT SONG TILL BACKEND " + error.getMessage());
+            }
+        });
+        // Add the request to the RequestQueue.
+        queue.add(stringRequest);
     }
 
     @Override
@@ -233,5 +331,30 @@ public class MainActivity extends Activity implements
     protected void onDestroy() {
         Spotify.destroyPlayer(this);
         super.onDestroy();
+    }
+
+    private class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
+        ImageView bmImage;
+
+        public DownloadImageTask(ImageView bmImage) {
+            this.bmImage = bmImage;
+        }
+
+        protected Bitmap doInBackground(String... urls) {
+            String urldisplay = urls[0];
+            Bitmap mIcon11 = null;
+            try {
+                InputStream in = new java.net.URL(urldisplay).openStream();
+                mIcon11 = BitmapFactory.decodeStream(in);
+            } catch (Exception e) {
+                Log.e("Error", e.getMessage());
+                e.printStackTrace();
+            }
+            return mIcon11;
+        }
+
+        protected void onPostExecute(Bitmap result) {
+            bmImage.setImageBitmap(result);
+        }
     }
 }
