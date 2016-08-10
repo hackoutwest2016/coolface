@@ -10,11 +10,12 @@ body {
 
 #search-form, .form-control {
   margin-bottom: 0px;
-  background-color: lightPink;
+  background-color: white;
 }
 #search{
-  background:#ff99a8;
+  background:#ffffff;
   transition:all 0.3s ease;
+  border: none;
 }
 #search:hover{
   opacity:0.5;
