@@ -11,14 +11,13 @@
 </head>
 <body>
   <div class="container" overflow: auto>
-    
+
     <div>
-      <h1>Pukebox! 
+      <h1>Pukebox!
       <img class="logo"  src="images/Spotify_Icon_RGB_White.png">
       </h1>
-      
     </div>
-    
+
 
 
 
@@ -69,7 +68,9 @@
           var artist  = response[i].artist[0].name,
               track   = response[i].name,
               trackId = response[i].id,
-              imgURL  = response[i].img;
+              imgURL  = trackImageUrl(trackId);
+
+              console.log(imgURL);
 
           var disabled = "";
 
@@ -177,6 +178,21 @@
         console.log(data);
       }
     });
+  }
+
+  var trackImageUrl = function (track){
+
+    var url = null;
+
+    $.ajax({
+      url: '/track_image?track_id=' + track,
+      async: false,
+      success: function (data) {
+        url = data;
+      }
+    });
+
+    return url;
   }
 
   window.onload = function () {
