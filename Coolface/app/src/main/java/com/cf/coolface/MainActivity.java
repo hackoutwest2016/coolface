@@ -372,10 +372,6 @@ public class MainActivity extends Activity implements
             currentTrackID = playerState.trackUri.substring(14);
             updateCurrentSongToBackend();
             displaySongInfo();
-        }else if(eventType == EventType.TRACK_START){
-            if(currentTrackID.equals(playerState.trackUri.substring(14)))
-                displaySongInfo();
-
         }
         Log.d("MainActivity", "Playback event received: " + eventType.name());
     }
