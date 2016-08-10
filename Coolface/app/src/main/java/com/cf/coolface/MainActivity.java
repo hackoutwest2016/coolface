@@ -63,8 +63,8 @@ public class MainActivity extends Activity implements
     private static final int REQUEST_CODE = 1337;
     private static String accessToken;
     private static SpotifyApi api;
-    private static String currentTrackID = "6KAu1eef7xY0Gkg1WQkpNT";
-    private static String nextTrackId = "2QZtBUsFrDOV1Y3tuohEXs";
+    private static String currentTrackID = "";
+    private static String nextTrackId = "";
 
     private Player mPlayer;
     @Override
@@ -159,8 +159,13 @@ public class MainActivity extends Activity implements
                             //nextTrackId = "6KAu1eef7xY0Gkg1WQkpNT";
                         }else {
                             nextTrackId = response;
-                            mPlayer.queue("spotify:track:" + nextTrackId);
-                            currentTrackID = nextTrackId;
+                            if(nextTrackId.equals(currentTrackID)){
+                                System.out.println("SAMMA LÅTE IGEN SKIPPA YO");
+                                setNextTrack();
+                            }else {
+                                mPlayer.queue("spotify:track:" + nextTrackId);
+                                currentTrackID = nextTrackId;
+                            }
                         }
                     }
                 }, new com.android.volley.Response.ErrorListener() {
