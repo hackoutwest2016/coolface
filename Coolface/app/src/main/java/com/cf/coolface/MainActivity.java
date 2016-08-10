@@ -146,7 +146,7 @@ public class MainActivity extends Activity implements
 
         // Instantiate the RequestQueue.
         RequestQueue queue = Volley.newRequestQueue(this);
-        String url ="http://coolface.herokuapp.com/nextSong";
+        String url ="http://coolface.herokuapp.com/next_song";
 
         final TextView tv_time_left = (TextView) findViewById(R.id.tv_time_left);
         // Request a string response from the provided URL.
@@ -166,7 +166,7 @@ public class MainActivity extends Activity implements
                 }, new com.android.volley.Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                tv_time_left.setText("That didn't work!");
+                tv_time_left.setText("GICK INTE HÄMTA NÄSTA LÅT");
             }
         });
     // Add the request to the RequestQueue.
@@ -310,7 +310,6 @@ public class MainActivity extends Activity implements
                     @Override
                     public void onResponse(String response) {
                         System.out.println("Set current song to backend " + response);
-
                     }
                 }, new com.android.volley.Response.ErrorListener() {
             @Override
