@@ -239,7 +239,8 @@ app.get('/set_current_song', function(req,res) {
   // Track ID
   var track_id = req.query.track_id;
 
-  if (current_song != undefined && track_id != current_song.id) {
+  if (!current_song || track_id != current_song.id) {
+
     // Get track by track id from Spotify API
     var options = {
           url: 'https://api.spotify.com/v1/tracks/' + track_id,
@@ -247,9 +248,8 @@ app.get('/set_current_song', function(req,res) {
     };
 
     request.get(options, function(error, response, body) {
-      
-      if (!error && response.statusCode === 200) {
 
+      if (!error && response.statusCode === 200) {
           album_name = body.album.name;
           img = body.album.images.pop().url;
           artists = [];
@@ -263,8 +263,9 @@ app.get('/set_current_song', function(req,res) {
           res.send('fuck off');
       }
     });
+  } else {
+    res.send('OK');
   }
-  res.send('OK');
 });
 
 app.get('/get_current_song', function(req,res) {
