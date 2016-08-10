@@ -62,6 +62,7 @@ cookie_name = 'user_id';
 app.get('/setcookie', function(req, res){ 
   var user_id = req.cookies ? req.cookies['user_id'] : null;
   if (user_id == null) {
+    res.cookie('user_id', unique_id);
     votes[unique_id] = 0;
     unique_id++;
   } else {
@@ -71,7 +72,7 @@ app.get('/setcookie', function(req, res){
 });
 
 app.get('/clearcookie', function(req,res){
-     clearCookie('user_id');
+     res.clearCookie('user_id');
      res.send('Cookie deleted');
 });
 
@@ -128,11 +129,12 @@ app.get('/upvote', function(req, res) {
         if (!error && response.statusCode === 200) {
 
           album_name = body.album.name;
+          img = body.album.images.pop().url;
           artists = [];
           for (var i = 0; i < body.artists.length; i++) {
             artists.push({name: body.artists[i].name});
           }
-          var track = {album_name: album_name, artists: artists, id: track_id, track_name: body.name, vote_count: 1}
+          var track = {img: img, album_name: album_name, artists: artists, id: track_id, track_name: body.name, vote_count: 1}
           track_list.push(track);
           tracks[track_id] = track_list.length - 1;
           res.send(JSON.stringify(track_list));
