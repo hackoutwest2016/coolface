@@ -260,7 +260,7 @@ app.get('/set_current_song', function(req,res) {
 
           current_song = track;
 
-          res.send('OK');
+          res.send('fuck off');
       }
     });
   }
