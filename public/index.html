@@ -21,7 +21,7 @@
 
     <div class="scroll-left">
 
-    <p>&#9834 <span id="currentSong"></span></p>
+    <p> <span id="currentSong"></span></p>
 
     </div>
     <form id="search-form">
@@ -39,7 +39,7 @@
     </div>
 
     <div class="list">
-      <h2 id="queHeader">Queue <img class="dancer" src="images/mchammer.gif" alt="" /></h2>
+      <h2 id="queHeader">queue </h2>
       <ul id="queue" class="list-group">
       </ul>
     </div>
@@ -216,7 +216,7 @@
         var name = data.artists[0].name,
             track = data.track_name;
 
-        var currentSong = name + " - " + track;
+        var currentSong = "&#9834" + name + " - " + track;
 
         $('#currentSong').html(currentSong);
       }
