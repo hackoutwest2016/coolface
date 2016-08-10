@@ -76,6 +76,10 @@ app.get('/cookie', function(req, res){
   res.send('OK');
 });
 
+app.get('/', function(req, res) {
+  console.log("Cookies :  ", req.cookies);
+});
+
 // Upvote a track in the list, adds a track to track list
 // if it's not in the list
 app.get('/upvote', function(req, res) {
@@ -250,6 +254,7 @@ function sort_list() {
   }
 }
 
+// Query parameter: ?track_id=value
 app.get('/artists', function(req,res) {
 
   // Track ID
@@ -265,20 +270,23 @@ app.get('/artists', function(req,res) {
     
     if (!error && response.statusCode === 200) {
 
+      // loop over all artists for a track
       artists = [];
       for (var i = 0; i < body.artists.length; i++) {
         artists.push(body.artists[i].id);
       }
-      res.send(artists);
+      res.send(artists); // send list of artists to client
     }
   });
 });
 
+// Query parameter: ?artist_id=value
 app.get('/artistimage', function(req, res) {
 
   // Artist ID
   artist_id = req.query.artist_id;
 
+  // API call for getting an artist by artist ID
   var options = {
         url: 'https://api.spotify.com/v1/artists/' + artist_id,
         json: true
@@ -286,7 +294,7 @@ app.get('/artistimage', function(req, res) {
 
   request.get(options, function(error, response, body) {
     if (!error && response.statusCode === 200) {
-      res.send(body.images.pop().url);
+      res.send(body.images.pop().url); // send the image url to client.
     }
   });
 });
