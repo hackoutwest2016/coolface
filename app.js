@@ -62,6 +62,7 @@ cookie_name = 'user_id';
 app.get('/setcookie', function(req, res){ 
   var user_id = req.cookies ? req.cookies['user_id'] : null;
   if (user_id == null) {
+    res.cookie('user_id', unique_id);
     votes[unique_id] = 0;
     unique_id++;
   } else {
@@ -71,7 +72,7 @@ app.get('/setcookie', function(req, res){
 });
 
 app.get('/clearcookie', function(req,res){
-     clearCookie('user_id');
+     res.clearCookie('user_id');
      res.send('Cookie deleted');
 });
 
