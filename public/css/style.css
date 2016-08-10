@@ -1,7 +1,7 @@
 body {
   padding: 20px;
 
-  background: linen url("/images/bg1.png") no-repeat;
+  background: url("/images/bg1.png") no-repeat;
   background-size: cover;
   height: 100%;
   width: 100%;
