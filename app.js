@@ -61,18 +61,19 @@ track_list = [];
 tracks = {};
 
 unique_id = 1;
-users = {};
 votes = {};
 
 // Set cookie
 cookie_name = 'user_id';
 app.get('/cookie', function(req, res){ 
   var user_id = req.cookies ? req.cookies['user_id'] : null;
-  if (!user_id) {
-    res.cookie(cookie_name, unique_id).send('Cookie is set');
+  if (user_id == null) {
     votes[unique_id] = 0;
     unique_id++;
+  } else {
+    votes[user_id] = 0;
   }
+  res.send('OK');
 });
 
 // Upvote a track in the list, adds a track to track list
@@ -81,7 +82,9 @@ app.get('/upvote', function(req, res) {
 
   // Check how many votes
   var user_id = req.cookies ? req.cookies['user_id'] : null;
-  if (user_id) {
+  if (user_id != null) {
+    console.log(user_id);
+    console.log(votes);
     vote_count = votes[user_id];
     if (vote_count > 3) {
       res.send('Too many votes');
