@@ -230,13 +230,13 @@ app.get('/next_song', function(req,res) {
 
     res.send(track_id);
   } else {
-    var tracks = ["1UGiFnaaen7IQGYlv68TI4","2TTsAJrzIySg5xVqVV5s5x", "62oe0gzcGgId4AQjHQllFh", "4oxpQ0HQymKMPaY9QKwYmq", "0dhynfLhSpcbyJnr3xy4hX"];
+    var tracksfucks = ["1UGiFnaaen7IQGYlv68TI4","2TTsAJrzIySg5xVqVV5s5x", "62oe0gzcGgId4AQjHQllFh", "4oxpQ0HQymKMPaY9QKwYmq", "0dhynfLhSpcbyJnr3xy4hX"];
    
-    var tr = tracks[Math.floor(Math.random() * tracks.length)];
+    var trfucks = tracksfucks[Math.floor(Math.random() * tracksfucks.length)];
 
 
     
-    res.send(tr);
+    res.send(trfucks);
   }
 });
 
