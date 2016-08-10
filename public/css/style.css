@@ -72,6 +72,11 @@ h1{
 h2{
   color:HotPink;
 }
+h3{
+  color:white;
+  text-align: center;
+  font-size: 5em;
+}
 
 p{
   font-size: 25px;
