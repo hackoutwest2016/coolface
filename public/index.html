@@ -53,6 +53,8 @@
       dataType: 'json',
       success: function (response) {
 
+        cleanNode(resultsPlaceholder);
+
         for (var i = 0; i < response.length; i++) {
           var artist = response[i].artist[0].name,
           track = response[i].name,
