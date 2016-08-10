@@ -58,9 +58,15 @@
           track = response[i].name,
           trackId = response[i].id;
 
+          var disabled = "";
+
+          if (hasUserVotedForThisSong(trackId)) {
+            disabled = "disabled";
+          }
+
 
           resultsPlaceholder.innerHTML += '<li class="list-group-item">' + track + ' - ' + artist +
-          ' <button id=' + trackId + ' class="btn btn-default btn-add">Add to queue</button></li>';
+          ' <button id=' + trackId + ' class="btn btn-default btn-add ' + disabled +'">Add to queue</button></li>';
 
         }
 
