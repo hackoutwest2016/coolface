@@ -41,8 +41,8 @@
       </ul>
     </div>
 
-    <div class="list">
-      <h2 id="queHeader">queue</h2>
+    <div class="list" title="QUEUE">
+      <!--<h2 id="queHeader">queue</h2>-->
       <ul id="queue" class="list-group">
       </ul>
     </div>
@@ -84,9 +84,7 @@
           }
 
 
-          resultsPlaceholder.innerHTML += '<li class="list-group-item"><img class="cover" src="' + imgURL + '"> ' + track + ' - ' + artist +
-          ' <button id=' + trackId + ' class="btn btn-default btn-add ' + disabled +'">Add to queue</button></li>';
-
+          resultsPlaceholder.innerHTML += '<li class="list-group-item" style="background-color:hotPink;color:#000;"><img class="cover" src="' + imgURL + '"> ' + track + ' - ' + artist + ' <button id=' + trackId + ' class="btn btn-default btn-add ' + disabled +'">Add to queue</button></li>';
         }
 
         for (var i = 0; i < addButtons.length; i++) {
