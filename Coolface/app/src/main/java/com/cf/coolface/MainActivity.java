@@ -68,6 +68,7 @@ public class MainActivity extends Activity implements
     private static String currentTrackID = "";
     private static String nextTrackId = "";
     private static CountDownTimer timer = null;
+    private static Handler nextSongHandler;
 
     private Player mPlayer;
     @Override
@@ -89,12 +90,18 @@ public class MainActivity extends Activity implements
                 //displaySongInfo();
                 //setNextTrack();
 
-                //fjortisByte();
+                fjortisByte();
 
             }
         });
 
         mAc = this;
+    }
+
+    private void fjortisByte(){
+        System.out.println("Starting fjortisbyte!");
+        nextSongHandler.removeCallbacksAndMessages(null);
+        setNextTrack(true);
     }
 
     private void displaySongInfo(){
@@ -132,7 +139,7 @@ public class MainActivity extends Activity implements
 
     }
 
-    private void setNextTrack(){
+    private void setNextTrack(final boolean fjortisByt){
         System.out.println("setting next track");
 
         // Instantiate the RequestQueue.
@@ -149,10 +156,14 @@ public class MainActivity extends Activity implements
                         nextTrackId = response;
                         if(nextTrackId.equals(currentTrackID)){
                             System.out.println("SAMMA LÅTE IGEN SKIPPA YO");
-                            setNextTrack();
+                            setNextTrack(fjortisByt);
                         }else {
                             mPlayer.queue("spotify:track:" + nextTrackId);
                             System.out.println("queuing next track: " + nextTrackId);
+                            if(fjortisByt){
+                                mPlayer.skipToNext();
+                                System.out.println("Fjortisbyter nu!");
+                            }
                         }
 
                     }
@@ -273,13 +284,13 @@ public class MainActivity extends Activity implements
     }
     private void startHandlerForNextSong(int delay){
         System.out.println("Handler started with delay : " + delay);
-        final Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
+        nextSongHandler = new Handler();
+        nextSongHandler.postDelayed(new Runnable() {
             @Override
             public void run() {
                 //Do something after 100ms
                 System.out.println("Handler fired, time to set next track!");
-                setNextTrack();
+                setNextTrack(false);
             }
         },delay);
     }
