@@ -242,7 +242,7 @@ public class MainActivity extends Activity implements
                 }, new com.android.volley.Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                System.out.println("GICK INTE UPPDATERA CURRENT SONG TILL BACKEND " + error.getMessage());
+                System.out.println("GICK INTE UPPDATERA CURRENT SONG TILL BACKEND: " + error.getMessage());
             }
         });
         // Add the request to the RequestQueue.
