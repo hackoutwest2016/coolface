@@ -97,9 +97,8 @@ public class MainActivity extends Activity implements
         mAc = this;
     }
 
-    /*private void displaySongInfo(){
+    private void displaySongInfo(){
         System.out.println("display song info called");
-        mPlayer.setShuffle(true);
         final TextView tv_main_activity =  (TextView) findViewById(R.id.tv_main_activity);
         SpotifyService spotify = api.getService();
 
@@ -122,7 +121,6 @@ public class MainActivity extends Activity implements
                         new DownloadImageTask((ImageView) findViewById(R.id.iv_album_cover)).execute(imgUrlStr);
                 }catch (Exception e){System.out.println("nått jävla error va " + e);}
 
-                startNextSongCountDown((int)track.duration_ms);
             }
 
             @Override
@@ -133,25 +131,6 @@ public class MainActivity extends Activity implements
 
 
     }
-
-    private void startNextSongCountDown(int trackDuration){
-        final TextView tv_time_left = (TextView) findViewById(R.id.tv_time_left);
-        timer = new CountDownTimer(trackDuration - 10000, 1000) {
-
-            public void onTick(long millisUntilFinished) {
-                tv_time_left.setText("suknder kvar till köa av ny låt: " + millisUntilFinished / 1000);
-            }
-
-            public void onFinish() {
-                System.out.println("OM JAG ROPAS PÅ FLERA GÅNGER ÄR DET FAN SJUKT!");
-                tv_time_left.setText("Dagd sstt byta låt!");
-                setNextTrack();
-
-            }
-        }.start();
-    }*/
-
-
 
     private void setNextTrack(){
         System.out.println("setting next track");
@@ -195,9 +174,9 @@ public class MainActivity extends Activity implements
         if (requestCode == REQUEST_CODE) {
             AuthenticationResponse response = AuthenticationClient.getResponse(resultCode, intent);
             if (response.getType() == AuthenticationResponse.Type.TOKEN) {
-                //accessToken = response.getAccessToken();
-                //api = new SpotifyApi();
-                //api.setAccessToken(accessToken);
+                accessToken = response.getAccessToken();
+                api = new SpotifyApi();
+                api.setAccessToken(accessToken);
 
                 final Config playerConfig = new Config(this, response.getAccessToken(), CLIENT_ID);
                 mPlayer = Spotify.getPlayer(playerConfig, this, new Player.InitializationObserver() {
@@ -251,7 +230,7 @@ public class MainActivity extends Activity implements
     }
 
 
-    /*private void updateCurrentSongToBackend(){
+    private void updateCurrentSongToBackend(){
         System.out.println("setting next track");
 
         // Instantiate the RequestQueue.
@@ -273,7 +252,7 @@ public class MainActivity extends Activity implements
         });
         // Add the request to the RequestQueue.
         queue.add(stringRequest);
-    }*/
+    }
 
     @Override
     public void onPlaybackEvent(EventType eventType, PlayerState playerState) {
@@ -283,21 +262,26 @@ public class MainActivity extends Activity implements
             case TRACK_CHANGED:
                 System.out.println("Track Changed to: " + playerState.trackUri);
                 currentTrackID = playerState.trackUri.substring(14);
-                int delayUntilSetNextTrack = (playerState.durationInMs - playerState.positionInMs - 8000);
-                final Handler handler = new Handler();
-                handler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        //Do something after 100ms
-                        System.out.println("Handler fired, time to set next track!");
-                        setNextTrack();
-                    }
-                },delayUntilSetNextTrack);
-
+                int delayUntilSetNextTrack = (playerState.durationInMs - playerState.positionInMs-8000);
+                startHandlerForNextSong(delayUntilSetNextTrack);
+                displaySongInfo();
+                updateCurrentSongToBackend();
                 break;
             default:
                 break;
         }
+    }
+    private void startHandlerForNextSong(int delay){
+        System.out.println("Handler started with delay : " + delay);
+        final Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                //Do something after 100ms
+                System.out.println("Handler fired, time to set next track!");
+                setNextTrack();
+            }
+        },delay);
     }
 
     @Override
