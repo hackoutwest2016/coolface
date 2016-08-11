@@ -27,7 +27,7 @@
     <p><img id="note" src="images/lp.png"><span id="currentSong"></span></p>
 
     </div>
-    <form id="search-form">
+   <form id="search-form">
       <div class="input-group">
         <input type="text" id="query" class="form-control" placeholder="Search...">
         <span class="input-group-btn">
@@ -43,6 +43,9 @@
 
     <div class="list" title="QUEUE">
       <!--<h2 id="queHeader">queue</h2>-->
+      <h1>
+        <img id="que" src="images/queue.png">
+    </h1>
       <ul id="queue" class="list-group">
       </ul>
     </div>
@@ -84,7 +87,7 @@
           }
 
 
-          resultsPlaceholder.innerHTML += '<li class="list-group-item" style="background-color:hotPink;color:#000;"><img class="cover" src="' + imgURL + '"> ' + track + ' - ' + artist + ' <button id=' + trackId + ' class="btn btn-default btn-add ' + disabled +'">Add to queue</button></li>';
+          resultsPlaceholder.innerHTML += '<li class="list-group-item" style="background-color:hotPink;color:#000;"><img class="cover" src="' + imgURL + '"> ' + track + ' - ' + artist + ' <button id=' + trackId + ' class="btn btn-default btn-add ' + disabled +'">queue</button></li>';
         }
 
         for (var i = 0; i < addButtons.length; i++) {
@@ -155,7 +158,7 @@
 
       queue.innerHTML += '<li class="list-group-item"><img class="cover" src="' + imgURL + '"> ' + artist + ' - ' + track +
       '<span class="votes">' + votes + '</span>' +
-      ' <button id=' + trackId + ' class="btn btn-default btn-vote ' + disabled +'">Vote</button>';
+      ' <button id=' + trackId + ' class="btn btn-default btn-vote ' + disabled +'">vote</button>';
     }
 
     for (var i = 0; i < voteButtons.length; i++) {
@@ -207,7 +210,7 @@
   setInterval(function () {
     getList();
     updateCurrentSong();
-  }, 1000);
+  }, 5000);
 
   var updateCurrentSong = function(){
     $.ajax({
