@@ -10,7 +10,7 @@
   <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
 </head>
 <body>
-<h3>coolface.herokuapp.com</h3>
+<!--<h3>coolface.herokuapp.com</h3>-->
   <div class="container" overflow: auto>
 
     <div>
@@ -23,7 +23,8 @@
 
     <div class="scroll-left">
 
-    <p> <img class="note" style="image-size:10px" src="images/lp.png"> <span id="currentSong"></span></p>
+    <!--<p> <span id="currentSong"></span></p>-->
+    <p><img id="note" src="images/lp.png"><span id="currentSong"></span></p>
 
     </div>
     <form id="search-form">
@@ -41,7 +42,7 @@
     </div>
 
     <div class="list">
-      <h2 id="queHeader">Queue </h2>
+      <h2 id="queHeader">queue</h2>
       <ul id="queue" class="list-group">
       </ul>
     </div>
@@ -208,19 +209,27 @@
   setInterval(function () {
     getList();
     updateCurrentSong();
-  }, 15000);
+  }, 1000);
 
   var updateCurrentSong = function(){
     $.ajax({
       url: '/get_current_song',
       success: function (data) {
+        if (data) {
+          var name = data.artists[0].name,
+              track = data.track_name;
 
-        var name = data.artists[0].name,
-            track = data.track_name;
+          //var currentSong = <img class="note" style="image-size:10px" src="images/lp.png"> + name + " - " + track;
 
-        var currentSong = name + " - " + track;
+          var currentSong = name + " - " + track;
 
-        $('#currentSong').html(currentSong);
+          $('#note').css({"visibility":"visible"});
+          $('#currentSong').css({"visibility":"visible"});
+          $('#currentSong').html(currentSong);
+        } else {
+          $('#note').css({"visibility":"hidden"});
+          $('#currentSong').css({"visibility":"hidden"});
+        }
       }
     });
   }

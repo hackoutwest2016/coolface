@@ -87,7 +87,7 @@ app.get('/upvote', function(req, res) {
 
     vote_count = votes[user_id];
 
-    if (vote_count > 400) {
+    if (vote_count > 20) {
       console.log('too many votes');
       res.send('Too many votes');
     } else {
@@ -123,17 +123,10 @@ app.get('/upvote', function(req, res) {
           // Update HashMap
           
           tracks[track_id] = insert_index;
-          console.log(tracks);
-          console.log(insert_index);
-          console.log(track_index);
           for (var i = insert_index + 1; i <= track_index; i++) {
             var temp_id = track_list[i].id;
-            console.log(track_list);
-            console.log('i: '+i);
-            console.log('temp_id:'+temp_id);
             tracks[temp_id] = i;
           }
-          console.log(tracks);
         }
         res.send(JSON.stringify(track_list));
       } else {

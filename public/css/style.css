@@ -26,8 +26,21 @@ body {
   background-color: lightPink;
   color: #000;
   transition:all 0.3s ease;
-
 }
+
+.list-group-item:hover{
+  -webkit-transform:scale(0.99);
+  -ms-transform: scale(0.99);
+  transform: scale(0.99);
+}
+
+.list-group-item {
+  height: 56px;
+  background-color: lightPink;
+  color: #000;
+  transition:all 0.3s ease;
+}
+
 .list-group-item:hover{
   -webkit-transform:scale(0.99);
   -ms-transform: scale(0.99);
@@ -71,6 +84,7 @@ h1{
 
 h2{
   color:HotPink;
+  text-align: center;
 }
 h3{
   color:white;
@@ -102,6 +116,16 @@ p{
   border: 2px solid white;
   border-radius: 20px;
   animation: blink .5s step-end infinite alternate;
+}
+
+#note {
+  image-size: 10px;
+  visibility: hidden;
+  margin-right: 10px;
+}
+
+#currentSong {
+  visibility: hidden;
 }
 
 
