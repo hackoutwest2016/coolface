@@ -34,19 +34,6 @@ body {
   transform: scale(0.99);
 }
 
-.list-group-item {
-  height: 56px;
-  background-color: lightPink;
-  color: #000;
-  transition:all 0.3s ease;
-}
-
-.list-group-item:hover{
-  -webkit-transform:scale(0.99);
-  -ms-transform: scale(0.99);
-  transform: scale(0.99);
-}
-
 .btn-vote {
   float: right;
   background: #ff99a8;
