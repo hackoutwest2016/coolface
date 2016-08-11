@@ -246,7 +246,7 @@ app.get('/next_song', function(req,res) {
 
     res.send(track_id);
   } else {
-    var tracksfucks = ["1UGiFnaaen7IQGYlv68TI4","2TTsAJrzIySg5xVqVV5s5x", "62oe0gzcGgId4AQjHQllFh", "4oxpQ0HQymKMPaY9QKwYmq", "0dhynfLhSpcbyJnr3xy4hX"];
+    var tracksfucks = ["71O1jD7bF3cdMPvPi186V6","0qBMQiUW49Qp9wbwHc9Hma", "1pHP4JeQV9wDx87D6qH9hD", "0MXi112L7wWfoNYG0FJVQP", "4W3Bkljqflf1SD5l2VEtfl"];
    
     var trfucks = tracksfucks[Math.floor(Math.random() * tracksfucks.length)];
 
