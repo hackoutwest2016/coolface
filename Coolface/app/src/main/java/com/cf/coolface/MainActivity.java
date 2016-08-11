@@ -4,10 +4,8 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.CountDownTimer;
 import android.os.Handler;
 import android.util.Log;
 import android.view.View;
@@ -24,8 +22,6 @@ import com.spotify.sdk.android.authentication.AuthenticationClient;
 import com.spotify.sdk.android.authentication.AuthenticationRequest;
 import com.spotify.sdk.android.authentication.AuthenticationResponse;
 import com.spotify.sdk.android.player.Config;
-import com.spotify.sdk.android.player.PlayConfig;
-import com.spotify.sdk.android.player.PlayerStateCallback;
 import com.spotify.sdk.android.player.Spotify;
 import com.spotify.sdk.android.player.ConnectionStateCallback;
 import com.spotify.sdk.android.player.Player;
@@ -33,18 +29,10 @@ import com.spotify.sdk.android.player.PlayerNotificationCallback;
 import com.spotify.sdk.android.player.PlayerState;
 
 import java.io.InputStream;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Timer;
 
 import kaaes.spotify.webapi.android.SpotifyApi;
 import kaaes.spotify.webapi.android.SpotifyService;
-import kaaes.spotify.webapi.android.models.Album;
 import kaaes.spotify.webapi.android.models.ArtistSimple;
-import kaaes.spotify.webapi.android.models.Playlist;
-import kaaes.spotify.webapi.android.models.PlaylistTrack;
 import kaaes.spotify.webapi.android.models.Track;
 import retrofit.Callback;
 import retrofit.RetrofitError;
@@ -67,7 +55,6 @@ public class MainActivity extends Activity implements
     private static SpotifyApi api;
     private static String currentTrackID = "";
     private static String nextTrackId = "";
-    private static CountDownTimer timer = null;
     private static Handler nextSongHandler;
 
     private Player mPlayer;
@@ -84,12 +71,10 @@ public class MainActivity extends Activity implements
 
         AuthenticationClient.openLoginActivity(this, REQUEST_CODE, request);
 
+        //fjortisbyte knappen
         final Button button = (Button) findViewById(R.id.btn_main_activity);
         button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                //displaySongInfo();
-                //setNextTrack();
-
                 fjortisByte();
 
             }
@@ -146,7 +131,6 @@ public class MainActivity extends Activity implements
         RequestQueue queue = Volley.newRequestQueue(this);
         String url ="http://coolface.herokuapp.com/next_song";
 
-        final TextView tv_time_left = (TextView) findViewById(R.id.tv_time_left);
         // Request a string response from the provided URL.
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
                 new com.android.volley.Response.Listener<String>() {
@@ -195,7 +179,7 @@ public class MainActivity extends Activity implements
                     public void onInitialized(final Player player) {
                         mPlayer.addConnectionStateCallback(MainActivity.this);
                         mPlayer.addPlayerNotificationCallback(MainActivity.this);
-
+                        //hårdkodad första låt här för att ha en kort låt för testning
                         mPlayer.play("spotify:track:7yvF0KrTBRHzoW3glOSlvp");
                         mPlayer.setRepeat(true);
                         System.out.println("Nur är saker på g!");
@@ -272,7 +256,7 @@ public class MainActivity extends Activity implements
             // Handle event type as necessary
             case TRACK_CHANGED:
                 System.out.println("Track Changed to: " + playerState.trackUri);
-                currentTrackID = playerState.trackUri.substring(14);
+                currentTrackID = playerState.trackUri.substring(14); // så man slipper "spotify:track:"
                 int delayUntilSetNextTrack = (playerState.durationInMs - playerState.positionInMs-8000);
                 startHandlerForNextSong(delayUntilSetNextTrack);
                 displaySongInfo();
@@ -282,6 +266,7 @@ public class MainActivity extends Activity implements
                 break;
         }
     }
+    
     private void startHandlerForNextSong(int delay){
         System.out.println("Handler started with delay : " + delay);
         nextSongHandler = new Handler();
@@ -337,86 +322,3 @@ public class MainActivity extends Activity implements
         }
     }
 }
-
-/*private void startShit(){
-        SpotifyService spotify = api.getService();
-        System.out.println("lets start shit");
-        spotify.getPlaylist("1149123130", "0A3rNq9wY6OQ0dYxj0JXqS", new Callback<Playlist>() {
-            @Override
-            public void success(Playlist playlist, Response response) {
-                System.out.print(response.getReason());
-                ArrayList<String> tracks = new ArrayList<String>();
-                tracks.add("spotify:track:7yvF0KrTBRHzoW3glOSlvp");
-                for (PlaylistTrack plt: playlist.tracks.items) {
-                    tracks.add(plt.track.id);
-                }
-                PlayConfig pc = PlayConfig.createFor(tracks);
-                pc.withTrackIndex(0);
-                currentTrackID = tracks.get(0).substring(14);
-                mPlayer.play(pc);
-                mPlayer.setRepeat(true);
-                mPlayer.setShuffle(true);
-                System.out.println("Nur är saker på g!");
-            }
-
-            @Override
-            public void failure(RetrofitError error) {
-                System.out.println("HEJ ERROR " + error.getMessage());
-            }
-        });
-    }*/
-    /*private void fjortisByte(){
-        System.out.println("FJORTIIISBYYYTE");
-        timer.cancel();
-        timer = null;
-        System.out.println("FJORTIIISBYYYasdasd213121222222222222222TE");
-        // Instantiate the RequestQueue.
-        RequestQueue queue = Volley.newRequestQueue(this);
-        String url ="http://coolface.herokuapp.com/next_song";
-        mPlayer.clearQueue();
-
-        final TextView tv_time_left = (TextView) findViewById(R.id.tv_time_left);
-        // Request a string response from the provided URL.
-
-        System.out.println("FJORTIIISBYYY111111111111111111111111111111111111111111111111111111TE");
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
-                new com.android.volley.Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        System.out.println("!!!!!!!!!!!!!!Next track response " + response);
-                        if(response.equalsIgnoreCase("error")){
-                            //nextTrackId = "6KAu1eef7xY0Gkg1WQkpNT";
-                            //Collections.shuffle(pc.getUris());
-                            int rnd = (int) Math.floor(Math.random()*pc.getUris().size());
-                            System.out.println(rnd);
-                            mPlayer.queue(pc.getUris().get(rnd));
-                            for (String s: pc.getUris()) {
-                                mPlayer.queue(s);
-                                System.out.println(s);
-                            }
-
-                            mPlayer.skipToNext();
-
-                            System.out.println("FJORTISBYTER NU! till " + pc.getUris().get(0));
-                        }else {
-                            nextTrackId = response;
-                            if(nextTrackId.equals(currentTrackID)){
-                                System.out.println("SAMMA LÅTE IGEN SKIPPA YO");
-                                fjortisByte();
-                            }else {
-                                mPlayer.queue("spotify:track:" + nextTrackId);
-                                currentTrackID = nextTrackId;
-                                mPlayer.skipToNext();
-                                System.out.println("FJORTISBYTER NU!");
-                            }
-                        }
-                    }
-                }, new com.android.volley.Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                tv_time_left.setText("GICK INTE HÄMTA NÄSTA LÅT");
-            }
-        });
-        // Add the request to the RequestQueue.
-        queue.add(stringRequest);
-    }*/
