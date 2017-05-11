@@ -62,4 +62,11 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/tv_main_activity"
         android:text="Fjortisbyte"/>
+
+    <android.support.v7.widget.AppCompatEditText
+        android:id="@+id/inpttxt_jukeboxid"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/btn_main_activity"
+        android:hint="Jukebox Name "/>
 </RelativeLayout>

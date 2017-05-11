@@ -10,6 +10,7 @@ import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -127,9 +128,13 @@ public class MainActivity extends Activity implements
     private void setNextTrack(final boolean fjortisByt){
         System.out.println("setting next track");
 
+        // get the jukebox id
+        EditText editText = (EditText) findViewById(R.id.inpttxt_jukeboxid);
+        String jukeboxId = editText.getText().toString();
+
         // Instantiate the RequestQueue.
         RequestQueue queue = Volley.newRequestQueue(this);
-        String url ="http://coolface.herokuapp.com/next_song";
+        String url ="http://coolface.herokuapp.com/next_song/" + jukeboxId;
 
         // Request a string response from the provided URL.
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
@@ -228,9 +233,13 @@ public class MainActivity extends Activity implements
     private void updateCurrentSongToBackend(){
         System.out.println("setting next track");
 
+        // get the jukebox id
+        EditText editText = (EditText) findViewById(R.id.inpttxt_jukeboxid);
+        String jukeboxId = editText.getText().toString();
+
         // Instantiate the RequestQueue.
         RequestQueue queue = Volley.newRequestQueue(this);
-        String url ="http://coolface.herokuapp.com/set_current_song?track_id=" + currentTrackID;
+        String url ="http://coolface.herokuapp.com/set_current_song/" + jukeboxId + "?track_id=" + currentTrackID;
 
         // Request a string response from the provided URL.
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
